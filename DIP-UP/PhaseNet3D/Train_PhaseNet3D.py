@@ -26,7 +26,7 @@ def DataLoad(Batch_size):
     trainloader = data.DataLoader(dst, batch_size = Batch_size, shuffle=False, drop_last = True)
     return trainloader
 
-
+#########  Section 2: Loss Functions Design #############
 def Gradient(image):
 
     diff_x = torch.diff(image, dim=2)
@@ -147,6 +147,7 @@ def TVLoss(image, mask):
 
     return loss
 
+#########  Section 3: Save the network, iteratively by the epoch #############
 def SaveNet(PhaseNet, epo, enSave = False):
     print('save results')
     #### save the pre
@@ -161,7 +162,7 @@ def SaveNet(PhaseNet, epo, enSave = False):
         # torch.save(PhaseNet.state_dict(), './PHUNet_CEL1GradMSKResidueLoss_2Chan_BaseShift.pth')
         # torch.save(PhaseNet.state_dict(), ("/PHUNet_%EPO.pth" % epo))
 
-
+#########  Section 4: Start training #############
 def TrainNet(PhaseNet, LR = 0.001, Batchsize = 24, Epoches = 45, useGPU = True):
     print('Unet')
     print('DataLoader setting begins')
@@ -199,9 +200,9 @@ def TrainNet(PhaseNet, LR = 0.001, Batchsize = 24, Epoches = 45, useGPU = True):
                 for i, data in enumerate(trainloader):
 
                     Imagess, labels, name = data
-                    Imagess = Imagess.to(device)  # [24,1,64,64,64]
+                    Imagess = Imagess.to(device)
 
-                    Labels = labels.to(device)  # [24,64,64,64]
+                    Labels = labels.to(device)
                     Labels = Labels.to(device=device, dtype=torch.int64)
 
                     # print('Dim of Input')
@@ -213,24 +214,21 @@ def TrainNet(PhaseNet, LR = 0.001, Batchsize = 24, Epoches = 45, useGPU = True):
                     ## zero the gradient buffers
                     optimizer1.zero_grad()
                     ## forward:
-                    Predictions = PhaseNet(Imagess)  # ZX edit  # [24,9,64,64,64]
+                    Predictions = PhaseNet(Imagess)
                     Predictions = torch.squeeze(Predictions, 1)
                     # print('Dim of Prediction')
                     # print(Predictions.size())
 
-                    # max_pred_label = torch.max(Predictions, dim=1)[0].unsqueeze(1)
-                    Max_Prediction = torch.max(Predictions, dim=1)[1].unsqueeze(1)  # [24,1,64,64,64]
+                    Max_Prediction = torch.max(Predictions, dim=1)[1].unsqueeze(1)
                     Prediction_OriBase = Max_Prediction - 5  # Base RE-Shifting Ver.2
                     # print('Dim of Max_Prediction')
                     # print(Max_Prediction.size())
 
-                    # Max_Imagess = torch.squeeze(Imagess, 1)  # [24,64,64,64]
                     # print('Dim of Max_Imagess')
                     # print(Max_Imagess.size())
 
                     Recon_UWP_Shift = 2 * Max_Prediction * math.pi + Imagess  # [24,1,64,64,64]
                     Recon_UWP_Orig = 2 * Prediction_OriBase * math.pi + Imagess  # [24,1,64,64,64]
-                    # miND THE BASE, RECOVER IT  # 20042023
 
                     Label_Unsq = torch.unsqueeze(Labels, 1)  # [24,1,64,64,64]
                     Label_UWPs = 2 * Label_Unsq * math.pi + Imagess
@@ -284,37 +282,3 @@ if __name__ == '__main__':
     ## train network
     # TrainNet(PhaseNet, LR = 0.001, Batchsize = 12, Epoches = 45 , useGPU = True)
     TrainNet(PhaseNet, LR = 0.0001, Batchsize = 24, Epoches = 45 , useGPU = True)
-
-'''
-
-def LapLacian(img):
-    
-    conv = nn.Conv3d(1, 1, 3, 1, 1, bias=False)
-    dker = scio.loadmat('/scratch/itee/xy_BFR/PhaseUnwrapping/patches/dker.mat')['dker']  # Replace
-    dker = nn.Parameter(torch.from_numpy(dker).unsqueeze(0).unsqueeze(0).float())
-    dker.requires_grad = False
-
-    img = np.array(img.cpu().detach())  # ZXY 30032023
-    img = torch.from_numpy(img).float()
-
-    # img = img.unsqueeze(0)
-    # img = img.unsqueeze(0)
-
-    tissue_mask = torch.zeros_like(img)
-    tissue_mask[img != 0] = 1
-
-    conv.weight = dker
-    # print(conv.weight)  # Print the weight per step
-    # Is it being shifted?
-
-    img_lap = conv(img)
-    img_lap = img_lap * tissue_mask
-
-    lap_abs = torch.abs(img_lap)
-
-    edge_mask = torch.zeros_like(img_lap)
-
-    edge_mask[lap_abs < threshold] = 1
-
-    return img_lap, edge_mask
-'''
