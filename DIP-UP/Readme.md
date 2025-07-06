@@ -12,10 +12,7 @@
 
 ## <span id="head3">Usage </span>
 
-- Train: Train_PhaseNet3D.py 
+- Train: (essential in both Train_PhaseNet3D.py and Train_PhaseNet3D.py) 
 
-    - root: The root directory of trainig dataset.
-    - file_path: The sepcific path of each trainig data. 
-
-    - depth: depth of Unet for QSM reconstruction.
-    - recon_base:  base channel number of Unet for QSM reconstruction.
+    - DATA_DIRECTORY: The root directory of trainig dataset.
+    - DATA_LIST_PATH: An index to search the database and load to the GPU (e.g., test_IDs_28800.txt). 
