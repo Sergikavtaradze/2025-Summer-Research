@@ -15,6 +15,8 @@ from Unet_2Chan_9Class import *
 from Train_PHUNET3D import *
 
 if __name__ == '__main__':
+    
+    #########  Section 1: Inference Data and Pre-trained Network Upload #############
     # with torch.no_grad():
     FileNo = 1  # file identifier
     # Set the loading path of pre-trained PHU-NET3D
@@ -48,7 +50,7 @@ if __name__ == '__main__':
     PHUnet = PHUnet.to(device)  # Model load to CPU?
     PHUnet.eval()
 
-    # Set the initial learning rate here. You can choose learning rate decay below in the looping area.
+    # Set the initial learning rate here. You can choose the learning rate decay below in the looping area.
     optimizer1 = optim.RMSprop(PHUnet.parameters(), lr=1e-6)
     # optimizer1 = optim.RMSprop(PHUnet.parameters(), lr=1e-4)
 
@@ -97,6 +99,7 @@ if __name__ == '__main__':
         # for params in optimizer1.param_groups:
         #     params['lr'] *= 0.9
 
+        #########  Section 2: Deep Image Prior to enhance the Initial output #############
         # with torch.no_grad():
         time_start = time.time()
         for inner in range(2001):
@@ -134,7 +137,7 @@ if __name__ == '__main__':
 
             time_end = time.time()
 
-            # You may comment the learning decay here.
+            # We illustrate the model of 'vlr' mode here. If you need to try 'clr' mode, you may comment out the learning decay here.
             # vlr meaning variable learning rate
             # clr meaning constant learning rate
             if inner % 10 == 0:
@@ -151,7 +154,7 @@ if __name__ == '__main__':
                 recon_save = recon_count_save.float()
                 recon_save = recon_save.cpu().detach().numpy()
 
-                # InferenceName = Inferencetype
+                #########  Section 3: Save the output from DIP #############
                 # Set the testing Echo number and Mark the test feature
                 InferenceName = Inferencetype + ('_Echo%s' % index)
                 # path_NII = SaveDir_NIFTI + ModelName + '_' + InferenceName + ('_%s_Iter.nii' % inner)
