@@ -16,79 +16,17 @@ threshold = math.pi*(1+ratio)
 
 #########  Section 1: DataSet Load #############
 def DataLoad(Batch_size):
-    # DATA_DIRECTORY = 'D:/QSMData/PhaseUnwrapping/10msTE/patches/'
+
     DATA_DIRECTORY = '/scratch/itee/xy_BFR/PhaseUnwrapping/patches/SingleClass/10msTE'
-    # DATA_LIST_PATH = 'C:/Users/s4513947/Downloads/Python/test_IDs_28800.txt'
     DATA_LIST_PATH = '/scratch/itee/xy_BFR/PhaseUnwrapping/patches/test_IDs_28800.txt'
+    # Switch the 'DATA_DIRECTORY' and 'DATA_LIST_PATH' by your own path
 
     dst = DataSet(DATA_DIRECTORY,DATA_LIST_PATH)
     print('dataLength: %d'%dst.__len__())
     trainloader = data.DataLoader(dst, batch_size = Batch_size, shuffle=False, drop_last = True)
     return trainloader
 
-
-def Gradient(image):
-
-    diff_x = torch.diff(image, dim=2)
-    diff_y = torch.diff(image, dim=3)
-    diff_z = torch.diff(image, dim=4)
-
-    '''
-    diff_x_pad = pad(diff_x ** 2, [0, 0, 0, 0, 0, 1])
-    diff_y_pad = pad(diff_y ** 2, [0, 0, 0, 1])
-    diff_z_pad = pad(diff_z ** 2, [0, 1])
-    '''
-
-    diff_x_pad = pad(diff_x, [0, 0, 0, 0, 0, 1])
-    diff_y_pad = pad(diff_y, [0, 0, 0, 1])
-    diff_z_pad = pad(diff_z, [0, 1])
-
-    gradient = torch.sqrt((diff_x_pad ** 2 + diff_y_pad ** 2 + diff_z_pad ** 2)/3)
-
-    return gradient
-
-
-def MskedResidueLoss(input, recon_unimg):
-
-    # L2 = nn.MSELoss()
-    Res = nn.L1Loss()
-
-    grad_input = Gradient(input)  # diff is the masked edge of 1-D gradients
-    grad_recon = Gradient(recon_unimg)
-
-    grad_mask = torch.zeros_like(grad_input)
-    grad_mask[grad_input < threshold] = 1
-
-    tissue_mask = torch.zeros_like(grad_input)
-    tissue_mask[grad_input != 0] = 1
-
-    grad_input = grad_input * grad_mask
-    grad_recon = grad_recon * grad_mask
-    grad_recon = grad_recon * tissue_mask
-
-    # numvox = np.count_nonzero(Msk.cpu())
-    # How to load into CPU first, Answer: Change (Msk) to (Msk.cpu())
-
-    resloss = Res(grad_input, grad_recon)
-
-    Diff = grad_input - grad_recon
-
-    return resloss, Diff
-
-
-def LapLacian(img, device):
-    SourceDir = '/home/Student/s4564445/mrf/inference_con/code/multi/XYDIPtemp/'
-    # SourceDir = 'D:/QSMData/PhaseUnwrapping/NetworksTemp/Python/NewSets/DIPtemp/'
-    # SourceDir = '/scratch/itee/xy_BFR/PhaseUnwrapping/recon/ChrisResults/'
-    load_dker = SourceDir + 'dker.mat'
-    dker = scio.loadmat(load_dker)['dker']  # Replace
-    dker = nn.Parameter(torch.from_numpy(dker).unsqueeze(0).unsqueeze(0).float(), requires_grad=False).to(device)
-
-    # img = np.array(img.cpu().detach())  # ZXY 30032023
-    # img = np.array(img.cpu().detach())  # ZXY 30032023
-    # img = torch.from_numpy(img).float()
-    return F.conv3d(img, weight=dker, stride=1, padding=1)
-
+#########  Section 2: Loss functions design #############
 
 def Laploss(input, recon_unimg, device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")):
 
@@ -113,7 +51,44 @@ def Laploss(input, recon_unimg, device=torch.device("cuda:0" if torch.cuda.is_av
 
     return Laploss, Diff
 
+def TVLoss(image, mask):
 
+    diff_x = torch.diff(image, dim=2)
+    diff_y = torch.diff(image, dim=3)
+    diff_z = torch.diff(image, dim=4)
+
+    diff_mask_x = torch.diff(mask, dim=2)
+    diff_mask_y = torch.diff(mask, dim=3)
+    diff_mask_z = torch.diff(mask, dim=4)
+
+    # diff_x_pad = pad(diff_x ** 2, [0, 0, 0, 0, 0, 1])
+    # diff_y_pad = pad(diff_y ** 2, [0, 0, 0, 1])
+    # diff_z_pad = pad(diff_z ** 2, [0, 1])
+
+    diff_x_pad = pad(diff_x, [0, 0, 0, 0, 0, 1])
+    diff_y_pad = pad(diff_y, [0, 0, 0, 1])
+    diff_z_pad = pad(diff_z, [0, 1])
+
+    diff_maskx_pad = pad(diff_mask_x, [0, 0, 0, 0, 0, 1])
+    diff_masky_pad = pad(diff_mask_y, [0, 0, 0, 1])
+    diff_maskz_pad = pad(diff_mask_z, [0, 1])
+
+    loss_3D = torch.abs((1 - diff_maskx_pad) * diff_x_pad) + torch.abs((1 - diff_masky_pad)*diff_y_pad) + torch.abs((1 - diff_maskz_pad) * diff_z_pad)
+
+    true_loss = torch.sum(loss_3D)
+
+    shape_image = image.shape
+    dimx = shape_image[2]
+    dimy = shape_image[3]
+    dimz = shape_image[4]
+
+    loss = true_loss/(dimx*dimy*dimz)
+
+    # gradient = torch.sqrt((diff_x_pad ** 2 + diff_y_pad ** 2 + diff_z_pad ** 2)/3)
+
+    return loss
+
+#########  Section 3: Save the network #############
 def SaveNet(PHU_Net, epo, enSave = False):
     print('save results')
     #### save the pre
@@ -122,14 +97,13 @@ def SaveNet(PHU_Net, epo, enSave = False):
     else:
         ModelFoder = '/scratch/itee/xy_BFR/PhaseUnwrapping/recon/ChrisResults/Networks/'
         ModelName = 'PHUNET3D.pth'
-        # ModelName = 'PHUNet_CEL1ModiLapMSKRes_2Chan_BaseShiftVer2.pth'
-        # ModelName = 'PHUNet_CEL1GradMSKResidueLoss_2Chan_BaseShiftVer2_TH1_5pi.pth'
         LoadModel = ModelFoder + ModelName
         torch.save(PHU_Net.state_dict(), LoadModel)
+        # If you need to itertively save the training model by epoch, use the code below instead:
         # torch.save(PHU_Net.state_dict(), './PHUNet_CEL1GradMSKResidueLoss_2Chan_BaseShift.pth')
         # torch.save(PHU_Net.state_dict(), ("/PHUNet_%EPO.pth" % epo))
 
-
+#########  Section 4: Model Trainig #############
 def TrainNet(PHU_Net, LR = 0.001, Batchsize = 24, Epoches = 45, useGPU = True):
     print('Unet')
     print('DataLoader setting begins')
@@ -137,11 +111,8 @@ def TrainNet(PHU_Net, LR = 0.001, Batchsize = 24, Epoches = 45, useGPU = True):
     print('Dataloader settting end')
 
     print('Training Begins')
-    criterion1 = nn.CrossEntropyLoss()  # XYZ 27062022
-    criterion2 = nn.L1Loss()
-    # criterion2 = nn.MSELoss(reduction='sum')
+    criterion1 = nn.CrossEntropyLoss() 
 
-    # optimizer1 = optim.Adam(PHU_Net.parameters())
     optimizer1 = optim.RMSprop(PHU_Net.parameters(), lr=LR)
 
     scheduler1 = LS.MultiStepLR(optimizer1, milestones = [50, 80], gamma = 0.1)
@@ -167,10 +138,10 @@ def TrainNet(PHU_Net, LR = 0.001, Batchsize = 24, Epoches = 45, useGPU = True):
                 for i, data in enumerate(trainloader):
 
                     Imagess, Laps, labels, name = data
-                    Imagess = Imagess.to(device)  # [24,1,64,64,64]
+                    Imagess = Imagess.to(device)
                     Laps = Laps.to(device)
 
-                    Labels = labels.to(device)  # [24,64,64,64]
+                    Labels = labels.to(device)
                     Labels = Labels.to(device=device, dtype=torch.int64)
 
                     # print('Dim of Input')
@@ -189,32 +160,11 @@ def TrainNet(PHU_Net, LR = 0.001, Batchsize = 24, Epoches = 45, useGPU = True):
                     # print('Dim of Prediction')
                     # print(Predictions.size())
 
-                    # max_pred_label = torch.max(Predictions, dim=1)[0].unsqueeze(1)
-                    Max_Prediction = torch.max(Predictions, dim=1)[1].unsqueeze(1)  # [24,1,64,64,64]
-                    Prediction_OriBase = Max_Prediction - 5  # Base RE-Shifting Ver.2
-                    # Tissue mask?
-                    # print('Dim of Max_Prediction')
-                    # print(Max_Prediction.size())
-
-                    # Max_Imagess = torch.squeeze(Imagess, 1)  # [24,64,64,64]
-                    # print('Dim of Max_Imagess')
-                    # print(Max_Imagess.size())
-
-                    Recon_UWP_Shift = 2 * Max_Prediction * math.pi + Imagess  # [24,1,64,64,64]
-                    Recon_UWP_Orig = 2 * Prediction_OriBase * math.pi + Imagess  # [24,1,64,64,64]
-                    # miND THE BASE, RECOVER IT  # 20042023
-
-                    Label_Unsq = torch.unsqueeze(Labels, 1)  # [24,1,64,64,64]
-                    Label_UWPs = 2 * Label_Unsq * math.pi + Imagess
-                    # print('Dim of Label_Unsq')
-                    # print(Label_Unsq.size())
-
                     ## loss
                     loss = criterion1(Predictions, Labels)
 
                     ## backward
                     loss.backward()
-                    # loss1.backward()
                     ##
                     optimizer1.step()
 
@@ -222,10 +172,7 @@ def TrainNet(PHU_Net, LR = 0.001, Batchsize = 24, Epoches = 45, useGPU = True):
                     ## print statistical information
                     ## print every 20 mini-batch size
                     if i % 5 == 0:
-                        acc_loss = loss1.item()
-                        # acc_loss1 = loss1.item()
-                        # acc_loss2 = loss2.item()
-                        # acc_loss3 = loss3.item()
+                        acc_loss = loss.item()
                         time_end = time.time()
                         print('Outside: Epoch : %d, batch: %d, Loss1: %f, lr1: %f,  used time: %d s' %
                             (epoch, i + 1, acc_loss, optimizer1.param_groups[0]['lr'], time_end - time_start))
@@ -250,37 +197,3 @@ if __name__ == '__main__':
     ## train network
     # TrainNet(PHU_Net, LR = 0.001, Batchsize = 12, Epoches = 45 , useGPU = True)
     TrainNet(PHU_Net, LR = 0.0001, Batchsize = 24, Epoches = 45 , useGPU = True)
-
-'''
-
-def LapLacian(img):
-    
-    conv = nn.Conv3d(1, 1, 3, 1, 1, bias=False)
-    dker = scio.loadmat('/scratch/itee/xy_BFR/PhaseUnwrapping/patches/dker.mat')['dker']  # Replace
-    dker = nn.Parameter(torch.from_numpy(dker).unsqueeze(0).unsqueeze(0).float())
-    dker.requires_grad = False
-
-    img = np.array(img.cpu().detach())  # ZXY 30032023
-    img = torch.from_numpy(img).float()
-
-    # img = img.unsqueeze(0)
-    # img = img.unsqueeze(0)
-
-    tissue_mask = torch.zeros_like(img)
-    tissue_mask[img != 0] = 1
-
-    conv.weight = dker
-    # print(conv.weight)  # Print the weight per step
-    # Is it being shifted?
-
-    img_lap = conv(img)
-    img_lap = img_lap * tissue_mask
-
-    lap_abs = torch.abs(img_lap)
-
-    edge_mask = torch.zeros_like(img_lap)
-
-    edge_mask[lap_abs < threshold] = 1
-
-    return img_lap, edge_mask
-'''
