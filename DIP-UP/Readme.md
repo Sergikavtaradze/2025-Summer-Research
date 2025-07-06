@@ -3,6 +3,7 @@
 - This study provides an enhancement mechanism for pre-trained 3D CNN models in MRI phase unwrapping.
 - The enhancement is based on Deep Image Prior (DIP), which is established by two restrictions (Laplacian loss and TV loss)
 - The pipeline combines two steps: 1) model training and 2) DIP-modification.
+- The code is built and tested on Windows 10. 16~24GB GPU memory is recommended to run the code.
 
 ## <span id="head1">Checkpoints and Test Data </span>
 - Checkpoints, including the pre-trained models PHU-NET3D and PhaseNet3D, are available at:
