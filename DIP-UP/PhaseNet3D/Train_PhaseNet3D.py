@@ -16,9 +16,8 @@ threshold = math.pi*(1+ratio)
 
 #########  Section 1: DataSet Load #############
 def DataLoad(Batch_size):
-    # DATA_DIRECTORY = 'D:/QSMData/PhaseUnwrapping/10msTE/patches/'
+
     DATA_DIRECTORY = '/scratch/itee/xy_BFR/PhaseUnwrapping/patches/SingleClass/10msTE'
-    # DATA_LIST_PATH = 'C:/Users/s4513947/Downloads/Python/test_IDs_28800.txt'
     DATA_LIST_PATH = '/scratch/itee/xy_BFR/PhaseUnwrapping/patches/test_IDs_28800.txt'
 
     dst = DataSet(DATA_DIRECTORY,DATA_LIST_PATH)
@@ -77,9 +76,7 @@ def MskedResidueLoss(input, recon_unimg):
 
 
 def LapLacian(img, device):
-    SourceDir = '/home/Student/s4564445/mrf/inference_con/code/multi/XYDIPtemp/'
-    # SourceDir = 'D:/QSMData/PhaseUnwrapping/NetworksTemp/Python/NewSets/DIPtemp/'
-    # SourceDir = '/scratch/itee/xy_BFR/PhaseUnwrapping/recon/ChrisResults/'
+    SourceDir = './deepMRI/DIP-UP/PhaseNet3D/'
     load_dker = SourceDir + 'dker.mat'
     dker = scio.loadmat(load_dker)['dker']  # Replace
     dker = nn.Parameter(torch.from_numpy(dker).unsqueeze(0).unsqueeze(0).float(), requires_grad=False).to(device)
@@ -154,13 +151,12 @@ def SaveNet(PhaseNet, epo, enSave = False):
     if enSave:
         pass
     else:
-        ModelFoder = '/scratch/itee/xy_BFR/PhaseUnwrapping/recon/ChrisResults/Networks/'
+        ModelFoder = './deepMRI/DIP-UP/PhaseNet3D/'
         ModelName = 'PhaseNet3D.pth'
         LoadModel = ModelFoder + ModelName
         torch.save(PhaseNet.state_dict(), LoadModel)
         # If you need to iteratively save the trained networks, cancel the comment below:
-        # torch.save(PhaseNet.state_dict(), './PHUNet_CEL1GradMSKResidueLoss_2Chan_BaseShift.pth')
-        # torch.save(PhaseNet.state_dict(), ("/PHUNet_%EPO.pth" % epo))
+        # torch.save(PhaseNet.state_dict(), ("/PhaseNet3D.pth" % epo))
 
 #########  Section 4: Start training #############
 def TrainNet(PhaseNet, LR = 0.001, Batchsize = 24, Epoches = 45, useGPU = True):
