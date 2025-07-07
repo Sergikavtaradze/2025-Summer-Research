@@ -13,10 +13,12 @@
 
 ## <span id="head2">Usage </span>
 
-- Train: (essential in both Train_PhaseNet3D.py and Train_PhaseNet3D.py) 
+- Train: (essential in both **Train_PhaseNet3D.py** and **Train_PhaseNet3D.py**) 
 
-    - DATA_DIRECTORY: The root directory of training dataset.
-    - DATA_LIST_PATH: An index to search the database and load to the GPU (e.g., test_IDs_28800.txt). 
+    - DATA_DIRECTORY: The root directory of the training dataset.
+    - DATA_LIST_PATH: An index to search the database and load to the GPU (e.g., test_IDs_28800.txt).
+    - ModelFolder: The storage path to save the trained network
+    - Model
 
 - Test:
 
