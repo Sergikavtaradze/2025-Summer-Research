@@ -96,9 +96,6 @@ if __name__ == '__main__':
 
         shift_base = 5
 
-        # for params in optimizer1.param_groups:
-        #     params['lr'] *= 0.9
-
         #########  Section 2: Deep Image Prior to enhance the Initial output #############
         # with torch.no_grad():
         time_start = time.time()
@@ -106,7 +103,7 @@ if __name__ == '__main__':
 
             recons = PHUnet(Features)  # Check line No.22
 
-            # print('Recon Initialized')
+            print('Recon Initialized')
 
             # recons = recons.to('cpu')
 
@@ -128,7 +125,6 @@ if __name__ == '__main__':
 
             loss1 = TVLoss(recon_uwph, tissue_mask)
             loss2, Diff = Laploss(image, recon_uwph)
-            # loss, Diff = MskedResidueLoss(image, recon_uwph)
             loss = loss1 + loss2
 
             loss.backward()
@@ -137,7 +133,7 @@ if __name__ == '__main__':
 
             time_end = time.time()
 
-            # We illustrate the model of 'vlr' mode here. If you need to try 'clr' mode, you may comment out the learning decay here.
+            # We illustrate the DIP-mode of 'vlr' here. If you need to try 'clr' mode, you may comment out the learning decay here.
             # vlr meaning variable learning rate
             # clr meaning constant learning rate
             if inner % 10 == 0:
@@ -146,7 +142,6 @@ if __name__ == '__main__':
 
             if inner % 10 == 0:
                 print('Outside: Epoch : %d, Loss1: %f, Loss2: %f, lr1: %f,  used time: %.2f s' %
-                # print('Outside: Epoch : %d, Loss1: %f, lr1: %f,  used time: %d s' %
                       (inner, loss1, loss2, optimizer1.param_groups[0]['lr'], time_end - time_start))
 
                 recon_count_save = torch.squeeze(recon_count)
@@ -157,9 +152,7 @@ if __name__ == '__main__':
                 #########  Section 3: Save the output from DIP #############
                 # Set the testing Echo number and Mark the test feature
                 InferenceName = Inferencetype + ('_Echo%s' % index)
-                # path_NII = SaveDir_NIFTI + ModelName + '_' + InferenceName + ('_%s_Iter.nii' % inner)
                 path_NII = SaveDir_NIFTI + ('Echo_%s_vlr/' % index) + ModelName + '_' + InferenceName + ('_%s_Iter_MixDIP_vlrNS10K.nii' % inner)
-                # path_NII = SaveDir_NIFTI + ('Echo_%s_clr/' % index) + ModelName + '_' + InferenceName + ('_%s_Iter_MixDIP_vlr.nii' % inner)
                 nib.save(nib.Nifti1Image(recon_save, np.eye(4)), path_NII)
 
                 recon_uwph_save = torch.squeeze(recon_uwph)
@@ -168,7 +161,6 @@ if __name__ == '__main__':
                 recon_uwph_save = recon_uwph_save.float()
                 recon_uwph_save = recon_uwph_save.cpu().detach().numpy()
 
-                # path_UWP = SaveDir_NIFTI + 'UWP/UWP_' + ModelName + '_' + InferenceName + ('_SGTV_%s_Iter.nii' % inner)
                 path_UWP = SaveDir_NIFTI + ('Echo_%s_vlrNS/' % index) + 'UWP/UWP_' + ModelName + '_' + InferenceName + ('_%s_Iter_MixDIP_vlrNS10K.nii' % inner)
                 nib.save(nib.Nifti1Image(recon_uwph_save, np.eye(4)), path_UWP)
 
@@ -176,7 +168,6 @@ if __name__ == '__main__':
                 Diff = Diff.float()
                 Diff = Diff.cpu().detach().numpy()
 
-                # path_Diff = SaveDir_NIFTI + ModelName + '_' + InferenceName + ('_TV_%s_Diff.nii' % inner)
                 path_Diff = SaveDir_NIFTI + ('Echo_%s_vlrNS/' % index) + 'Diff/Diff_' + ModelName + '_' + InferenceName + ('_%s_Iter_MixDIP_vlrNS10K.nii' % inner)
                 nib.save(nib.Nifti1Image(Diff, np.eye(4)), path_Diff)
 
