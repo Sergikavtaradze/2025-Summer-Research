@@ -95,7 +95,7 @@ def SaveNet(PHU_Net, epo, enSave = False):
     if enSave:
         pass
     else:
-        ModelFoder = '/scratch/itee/xy_BFR/PhaseUnwrapping/recon/ChrisResults/Networks/'
+        ModelFolder = '/scratch/itee/xy_BFR/PhaseUnwrapping/recon/ChrisResults/Networks/'
         ModelName = 'PHUNET3D.pth'
         LoadModel = ModelFoder + ModelName
         torch.save(PHU_Net.state_dict(), LoadModel)
