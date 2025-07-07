@@ -5,7 +5,11 @@
 - The pipeline combines two steps: 1) model training and 2) DIP-modification.
 - The code is built and tested on Windows 10. 16~24GB GPU memory is recommended to run the code.
 
-## <span id="head1">Checkpoints and Test Data </span>
+## <span id="head1">Whole Pipeline </span>
+![Figure 3](https://github.com/user-attachments/assets/5bb02af5-2f37-4f3d-9182-f31520c544aa)
+
+
+## <span id="head2">Checkpoints and Test Data </span>
 - Checkpoints, including the pre-trained models PHU-NET3D and PhaseNet3D, are available at:
 - https://www.dropbox.com/scl/fo/r4qv54fsdznxxmqgdcwn0/AMCMT9M-hvgmZ276-hcgaV8?rlkey=di0g1drz4whpz308rn84cxnx9&st=yw6d5qfz&dl=0
 - Testing labels including one simulation (10ms TE, with noisy, sigma = 0.1) and one InVivo (5.8ma TE), available at:
