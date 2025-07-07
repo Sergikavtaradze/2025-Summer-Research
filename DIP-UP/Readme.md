@@ -11,9 +11,13 @@
 - Testing labels including one simulation (10ms TE, with noisy, sigma = 0.1) and one InVivo (5.8ma TE), available at:
 - https://www.dropbox.com/scl/fo/iz98whja62v5ih6idg60g/AEyEcemOzOd6yY1A0n2sldM?rlkey=zol5wkvxn4onu6xi5mf55w3en&st=54svy08l&dl=0
 
-## <span id="head3">Usage </span>
+## <span id="head2">Usage </span>
 
 - Train: (essential in both Train_PhaseNet3D.py and Train_PhaseNet3D.py) 
 
-    - DATA_DIRECTORY: The root directory of trainig dataset.
+    - DATA_DIRECTORY: The root directory of training dataset.
     - DATA_LIST_PATH: An index to search the database and load to the GPU (e.g., test_IDs_28800.txt). 
+
+- Test:
+
+    - 
