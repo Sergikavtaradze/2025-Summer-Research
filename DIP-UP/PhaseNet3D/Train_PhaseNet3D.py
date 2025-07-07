@@ -242,7 +242,6 @@ def TrainNet(PhaseNet, LR = 0.001, Batchsize = 24, Epoches = 45, useGPU = True):
                     loss = loss1 + lamda2 * loss2 + lamda3 * loss3
                     ## backward
                     loss.backward()
-                    # loss1.backward()
                     ##
                     optimizer1.step()
 
@@ -276,5 +275,4 @@ if __name__ == '__main__':
     print(get_parameter_number(PhaseNet))
 
     ## train network
-    # TrainNet(PhaseNet, LR = 0.001, Batchsize = 12, Epoches = 45 , useGPU = True)
     TrainNet(PhaseNet, LR = 0.0001, Batchsize = 24, Epoches = 45 , useGPU = True)
