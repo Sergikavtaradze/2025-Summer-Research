@@ -12,14 +12,29 @@
 - https://www.dropbox.com/scl/fo/iz98whja62v5ih6idg60g/AEyEcemOzOd6yY1A0n2sldM?rlkey=zol5wkvxn4onu6xi5mf55w3en&st=54svy08l&dl=0
 
 ## <span id="head2">Usage </span>
+ 
+- Load data:
+- 
+    - PHU-NET3D: TrainingDataLoad_ResidueLoss_2Chan.py
+    - PhaseNet3D: TrainingDataLoad_ResidueLoss_1Chan.py
+    - 
+    - image_file 
+    - lap_file (PHU-NET3D only)
+    - Label_file
 
-- Train: (essential in both **Train_PhaseNet3D.py** and **Train_PhaseNet3D.py**) 
+- Train:
 
     - DATA_DIRECTORY: The root directory of the training dataset.
     - DATA_LIST_PATH: An index to search the database and load to the GPU (e.g., test_IDs_28800.txt).
     - ModelFolder: The storage path to save the trained network
-    - Model
+    - ModelName: The name to store models
 
-- Test:
+- Test (DIP-Enhancement):
 
-    - 
+    - SourceDir: Load the inference data
+    - ReconType: Simulation / In Vivo
+    - SaveDir_NIFTI: Save the DIP-reconstruction into .nii format
+
+    - DIP Learning rate setting:
+        - Variable learning rate: Decay every 10 Epoch during DIP
+        - Constant Learning rate: Default value  
