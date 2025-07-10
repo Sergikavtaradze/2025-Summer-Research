@@ -1,0 +1,895 @@
+================================================================================
+xQSM Model Analysis Report
+================================================================================
+Generated on: 2025-07-10 16:22:39
+Python version: 3.9.16 (main, May 16 2023, 14:27:50) 
+[Clang 14.0.6 ]
+PyTorch version: 2.5.1
+
+================================================================================
+xQSM Model Analysis - Encoding Depth: 2, Initial Channels: 32
+================================================================================
+
+Model Parameter Count:
+Total Parameters: 1,306,593
+Trainable Parameters: 1,306,593
+
+Input Shape: (1, 1, 48, 48, 48)
+
+================================================================================
+DETAILED MODEL SUMMARY
+================================================================================
+=============================================================================================================================
+Layer (type (var_name))                       Input Shape          Output Shape         Param #              Trainable
+=============================================================================================================================
+xQSM (xQSM)                                   [1, 1, 48, 48, 48]   [1, 1, 48, 48, 48]   --                   True
+├─OctEncodingBlocks (InputOct)                [1, 1, 48, 48, 48]   [1, 16, 48, 48, 48]  --                   True
+│    └─EncodeConv1.convHH.weight                                                        ├─432
+│    └─EncodeConv1.convHH.bias                                                          ├─16
+│    └─EncodeConv1.convHL.weight                                                        ├─432
+│    └─EncodeConv1.convHL.bias                                                          ├─16
+│    └─EncodeConv1.BN_HH.weight                                                         ├─16
+│    └─EncodeConv1.BN_HH.bias                                                           ├─16
+│    └─EncodeConv1.BN_HL.weight                                                         ├─16
+│    └─EncodeConv1.BN_HL.bias                                                           ├─16
+│    └─EncodeConv2.convHH.weight                                                        ├─6,912
+│    └─EncodeConv2.convHH.bias                                                          ├─16
+│    └─EncodeConv2.convLL.weight                                                        ├─6,912
+│    └─EncodeConv2.convLL.bias                                                          ├─16
+│    └─EncodeConv2.convHL.weight                                                        ├─6,912
+│    └─EncodeConv2.convHL.bias                                                          ├─16
+│    └─EncodeConv2.convLH.weight                                                        ├─6,912
+│    └─EncodeConv2.convLH.bias                                                          ├─16
+│    └─EncodeConv2.up.weight                                                            ├─2,048
+│    └─EncodeConv2.up.bias                                                              ├─16
+│    └─EncodeConv2.BN_HH.weight                                                         ├─16
+│    └─EncodeConv2.BN_HH.bias                                                           ├─16
+│    └─EncodeConv2.BN_LH.weight                                                         ├─16
+│    └─EncodeConv2.BN_LH.bias                                                           ├─16
+│    └─EncodeConv2.BN_LL.weight                                                         ├─16
+│    └─EncodeConv2.BN_LL.bias                                                           ├─16
+│    └─EncodeConv2.BN_HL.weight                                                         ├─16
+│    └─EncodeConv2.BN_HL.bias                                                           └─16
+│    └─OctConv (EncodeConv1)                  [1, 1, 48, 48, 48]   [1, 16, 48, 48, 48]  --                   True
+│    │    └─convHH.weight                                                               ├─432
+│    │    └─convHH.bias                                                                 ├─16
+│    │    └─convHL.weight                                                               ├─432
+│    │    └─convHL.bias                                                                 ├─16
+│    │    └─BN_HH.weight                                                                ├─16
+│    │    └─BN_HH.bias                                                                  ├─16
+│    │    └─BN_HL.weight                                                                ├─16
+│    │    └─BN_HL.bias                                                                  └─16
+│    │    └─Conv3d (convHH)                   [1, 1, 48, 48, 48]   [1, 16, 48, 48, 48]  448                  True
+│    │    │    └─weight                                                                 ├─432
+│    │    │    └─bias                                                                   └─16
+│    │    └─BatchNorm3d (BN_HH)               [1, 16, 48, 48, 48]  [1, 16, 48, 48, 48]  32                   True
+│    │    │    └─weight                                                                 ├─16
+│    │    │    └─bias                                                                   └─16
+│    │    └─Conv3d (convHL)                   [1, 1, 24, 24, 24]   [1, 16, 24, 24, 24]  448                  True
+│    │    │    └─weight                                                                 ├─432
+│    │    │    └─bias                                                                   └─16
+│    │    └─BatchNorm3d (BN_HL)               [1, 16, 24, 24, 24]  [1, 16, 24, 24, 24]  32                   True
+│    │    │    └─weight                                                                 ├─16
+│    │    │    └─bias                                                                   └─16
+│    │    └─ReLU (ReLU_H)                     [1, 16, 48, 48, 48]  [1, 16, 48, 48, 48]  --                   --
+│    │    └─ReLU (ReLU_L)                     [1, 16, 24, 24, 24]  [1, 16, 24, 24, 24]  --                   --
+│    └─OctConv (EncodeConv2)                  [1, 16, 48, 48, 48]  [1, 16, 48, 48, 48]  --                   True
+│    │    └─convHH.weight                                                               ├─6,912
+│    │    └─convHH.bias                                                                 ├─16
+│    │    └─convLL.weight                                                               ├─6,912
+│    │    └─convLL.bias                                                                 ├─16
+│    │    └─convHL.weight                                                               ├─6,912
+│    │    └─convHL.bias                                                                 ├─16
+│    │    └─convLH.weight                                                               ├─6,912
+│    │    └─convLH.bias                                                                 ├─16
+│    │    └─up.weight                                                                   ├─2,048
+│    │    └─up.bias                                                                     ├─16
+│    │    └─BN_HH.weight                                                                ├─16
+│    │    └─BN_HH.bias                                                                  ├─16
+│    │    └─BN_LH.weight                                                                ├─16
+│    │    └─BN_LH.bias                                                                  ├─16
+│    │    └─BN_LL.weight                                                                ├─16
+│    │    └─BN_LL.bias                                                                  ├─16
+│    │    └─BN_HL.weight                                                                ├─16
+│    │    └─BN_HL.bias                                                                  └─16
+│    │    └─Conv3d (convHH)                   [1, 16, 48, 48, 48]  [1, 16, 48, 48, 48]  6,928                True
+│    │    │    └─weight                                                                 ├─6,912
+│    │    │    └─bias                                                                   └─16
+│    │    └─Conv3d (convLH)                   [1, 16, 24, 24, 24]  [1, 16, 24, 24, 24]  6,928                True
+│    │    │    └─weight                                                                 ├─6,912
+│    │    │    └─bias                                                                   └─16
+│    │    └─ConvTranspose3d (up)              [1, 16, 24, 24, 24]  [1, 16, 48, 48, 48]  2,064                True
+│    │    │    └─weight                                                                 ├─2,048
+│    │    │    └─bias                                                                   └─16
+│    │    └─BatchNorm3d (BN_HH)               [1, 16, 48, 48, 48]  [1, 16, 48, 48, 48]  32                   True
+│    │    │    └─weight                                                                 ├─16
+│    │    │    └─bias                                                                   └─16
+│    │    └─BatchNorm3d (BN_LH)               [1, 16, 48, 48, 48]  [1, 16, 48, 48, 48]  32                   True
+│    │    │    └─weight                                                                 ├─16
+│    │    │    └─bias                                                                   └─16
+│    │    └─Conv3d (convLL)                   [1, 16, 24, 24, 24]  [1, 16, 24, 24, 24]  6,928                True
+│    │    │    └─weight                                                                 ├─6,912
+│    │    │    └─bias                                                                   └─16
+│    │    └─Conv3d (convHL)                   [1, 16, 24, 24, 24]  [1, 16, 24, 24, 24]  6,928                True
+│    │    │    └─weight                                                                 ├─6,912
+│    │    │    └─bias                                                                   └─16
+│    │    └─BatchNorm3d (BN_LL)               [1, 16, 24, 24, 24]  [1, 16, 24, 24, 24]  32                   True
+│    │    │    └─weight                                                                 ├─16
+│    │    │    └─bias                                                                   └─16
+│    │    └─BatchNorm3d (BN_HL)               [1, 16, 24, 24, 24]  [1, 16, 24, 24, 24]  32                   True
+│    │    │    └─weight                                                                 ├─16
+│    │    │    └─bias                                                                   └─16
+│    │    └─ReLU (ReLU_H)                     [1, 16, 48, 48, 48]  [1, 16, 48, 48, 48]  --                   --
+│    │    └─ReLU (ReLU_L)                     [1, 16, 24, 24, 24]  [1, 16, 24, 24, 24]  --                   --
+├─ModuleList (EncodeConvs)                    --                   --                   --                   True
+│    └─0.EncodeConv1.convHH.weight                                                      ├─6,912
+│    └─0.EncodeConv1.convHH.bias                                                        ├─16
+│    └─0.EncodeConv1.convLL.weight                                                      ├─6,912
+│    └─0.EncodeConv1.convLL.bias                                                        ├─16
+│    └─0.EncodeConv1.convHL.weight                                                      ├─6,912
+│    └─0.EncodeConv1.convHL.bias                                                        ├─16
+│    └─0.EncodeConv1.convLH.weight                                                      ├─6,912
+│    └─0.EncodeConv1.convLH.bias                                                        ├─16
+│    └─0.EncodeConv1.up.weight                                                          ├─2,048
+│    └─0.EncodeConv1.up.bias                                                            ├─16
+│    └─0.EncodeConv1.BN_HH.weight                                                       ├─16
+│    └─0.EncodeConv1.BN_HH.bias                                                         ├─16
+│    └─0.EncodeConv1.BN_LH.weight                                                       ├─16
+│    └─0.EncodeConv1.BN_LH.bias                                                         ├─16
+│    └─0.EncodeConv1.BN_LL.weight                                                       ├─16
+│    └─0.EncodeConv1.BN_LL.bias                                                         ├─16
+│    └─0.EncodeConv1.BN_HL.weight                                                       ├─16
+│    └─0.EncodeConv1.BN_HL.bias                                                         ├─16
+│    └─0.EncodeConv2.convHH.weight                                                      ├─6,912
+│    └─0.EncodeConv2.convHH.bias                                                        ├─16
+│    └─0.EncodeConv2.convLL.weight                                                      ├─6,912
+│    └─0.EncodeConv2.convLL.bias                                                        ├─16
+│    └─0.EncodeConv2.convHL.weight                                                      ├─6,912
+│    └─0.EncodeConv2.convHL.bias                                                        ├─16
+│    └─0.EncodeConv2.convLH.weight                                                      ├─6,912
+│    └─0.EncodeConv2.convLH.bias                                                        ├─16
+│    └─0.EncodeConv2.up.weight                                                          ├─2,048
+│    └─0.EncodeConv2.up.bias                                                            ├─16
+│    └─0.EncodeConv2.BN_HH.weight                                                       ├─16
+│    └─0.EncodeConv2.BN_HH.bias                                                         ├─16
+│    └─0.EncodeConv2.BN_LH.weight                                                       ├─16
+│    └─0.EncodeConv2.BN_LH.bias                                                         ├─16
+│    └─0.EncodeConv2.BN_LL.weight                                                       ├─16
+│    └─0.EncodeConv2.BN_LL.bias                                                         ├─16
+│    └─0.EncodeConv2.BN_HL.weight                                                       ├─16
+│    └─0.EncodeConv2.BN_HL.bias                                                         ├─16
+│    └─1.EncodeConv1.convHH.weight                                                      ├─13,824
+│    └─1.EncodeConv1.convHH.bias                                                        ├─32
+│    └─1.EncodeConv1.convLL.weight                                                      ├─13,824
+│    └─1.EncodeConv1.convLL.bias                                                        ├─32
+│    └─1.EncodeConv1.convHL.weight                                                      ├─13,824
+│    └─1.EncodeConv1.convHL.bias                                                        ├─32
+│    └─1.EncodeConv1.convLH.weight                                                      ├─13,824
+│    └─1.EncodeConv1.convLH.bias                                                        ├─32
+│    └─1.EncodeConv1.up.weight                                                          ├─8,192
+│    └─1.EncodeConv1.up.bias                                                            ├─32
+│    └─1.EncodeConv1.BN_HH.weight                                                       ├─32
+│    └─1.EncodeConv1.BN_HH.bias                                                         ├─32
+│    └─1.EncodeConv1.BN_LH.weight                                                       ├─32
+│    └─1.EncodeConv1.BN_LH.bias                                                         ├─32
+│    └─1.EncodeConv1.BN_LL.weight                                                       ├─32
+│    └─1.EncodeConv1.BN_LL.bias                                                         ├─32
+│    └─1.EncodeConv1.BN_HL.weight                                                       ├─32
+│    └─1.EncodeConv1.BN_HL.bias                                                         ├─32
+│    └─1.EncodeConv2.convHH.weight                                                      ├─27,648
+│    └─1.EncodeConv2.convHH.bias                                                        ├─32
+│    └─1.EncodeConv2.convLL.weight                                                      ├─27,648
+│    └─1.EncodeConv2.convLL.bias                                                        ├─32
+│    └─1.EncodeConv2.convHL.weight                                                      ├─27,648
+│    └─1.EncodeConv2.convHL.bias                                                        ├─32
+│    └─1.EncodeConv2.convLH.weight                                                      ├─27,648
+│    └─1.EncodeConv2.convLH.bias                                                        ├─32
+│    └─1.EncodeConv2.up.weight                                                          ├─8,192
+│    └─1.EncodeConv2.up.bias                                                            ├─32
+│    └─1.EncodeConv2.BN_HH.weight                                                       ├─32
+│    └─1.EncodeConv2.BN_HH.bias                                                         ├─32
+│    └─1.EncodeConv2.BN_LH.weight                                                       ├─32
+│    └─1.EncodeConv2.BN_LH.bias                                                         ├─32
+│    └─1.EncodeConv2.BN_LL.weight                                                       ├─32
+│    └─1.EncodeConv2.BN_LL.bias                                                         ├─32
+│    └─1.EncodeConv2.BN_HL.weight                                                       ├─32
+│    └─1.EncodeConv2.BN_HL.bias                                                         └─32
+│    └─OctEncodingBlocks (0)                  [1, 16, 48, 48, 48]  [1, 16, 48, 48, 48]  --                   True
+│    │    └─EncodeConv1.convHH.weight                                                   ├─6,912
+│    │    └─EncodeConv1.convHH.bias                                                     ├─16
+│    │    └─EncodeConv1.convLL.weight                                                   ├─6,912
+│    │    └─EncodeConv1.convLL.bias                                                     ├─16
+│    │    └─EncodeConv1.convHL.weight                                                   ├─6,912
+│    │    └─EncodeConv1.convHL.bias                                                     ├─16
+│    │    └─EncodeConv1.convLH.weight                                                   ├─6,912
+│    │    └─EncodeConv1.convLH.bias                                                     ├─16
+│    │    └─EncodeConv1.up.weight                                                       ├─2,048
+│    │    └─EncodeConv1.up.bias                                                         ├─16
+│    │    └─EncodeConv1.BN_HH.weight                                                    ├─16
+│    │    └─EncodeConv1.BN_HH.bias                                                      ├─16
+│    │    └─EncodeConv1.BN_LH.weight                                                    ├─16
+│    │    └─EncodeConv1.BN_LH.bias                                                      ├─16
+│    │    └─EncodeConv1.BN_LL.weight                                                    ├─16
+│    │    └─EncodeConv1.BN_LL.bias                                                      ├─16
+│    │    └─EncodeConv1.BN_HL.weight                                                    ├─16
+│    │    └─EncodeConv1.BN_HL.bias                                                      ├─16
+│    │    └─EncodeConv2.convHH.weight                                                   ├─6,912
+│    │    └─EncodeConv2.convHH.bias                                                     ├─16
+│    │    └─EncodeConv2.convLL.weight                                                   ├─6,912
+│    │    └─EncodeConv2.convLL.bias                                                     ├─16
+│    │    └─EncodeConv2.convHL.weight                                                   ├─6,912
+│    │    └─EncodeConv2.convHL.bias                                                     ├─16
+│    │    └─EncodeConv2.convLH.weight                                                   ├─6,912
+│    │    └─EncodeConv2.convLH.bias                                                     ├─16
+│    │    └─EncodeConv2.up.weight                                                       ├─2,048
+│    │    └─EncodeConv2.up.bias                                                         ├─16
+│    │    └─EncodeConv2.BN_HH.weight                                                    ├─16
+│    │    └─EncodeConv2.BN_HH.bias                                                      ├─16
+│    │    └─EncodeConv2.BN_LH.weight                                                    ├─16
+│    │    └─EncodeConv2.BN_LH.bias                                                      ├─16
+│    │    └─EncodeConv2.BN_LL.weight                                                    ├─16
+│    │    └─EncodeConv2.BN_LL.bias                                                      ├─16
+│    │    └─EncodeConv2.BN_HL.weight                                                    ├─16
+│    │    └─EncodeConv2.BN_HL.bias                                                      └─16
+│    │    └─OctConv (EncodeConv1)             [1, 16, 48, 48, 48]  [1, 16, 48, 48, 48]  29,904               True
+│    │    │    └─convHH.weight                                                          ├─6,912
+│    │    │    └─convHH.bias                                                            ├─16
+│    │    │    └─convLL.weight                                                          ├─6,912
+│    │    │    └─convLL.bias                                                            ├─16
+│    │    │    └─convHL.weight                                                          ├─6,912
+│    │    │    └─convHL.bias                                                            ├─16
+│    │    │    └─convLH.weight                                                          ├─6,912
+│    │    │    └─convLH.bias                                                            ├─16
+│    │    │    └─up.weight                                                              ├─2,048
+│    │    │    └─up.bias                                                                ├─16
+│    │    │    └─BN_HH.weight                                                           ├─16
+│    │    │    └─BN_HH.bias                                                             ├─16
+│    │    │    └─BN_LH.weight                                                           ├─16
+│    │    │    └─BN_LH.bias                                                             ├─16
+│    │    │    └─BN_LL.weight                                                           ├─16
+│    │    │    └─BN_LL.bias                                                             ├─16
+│    │    │    └─BN_HL.weight                                                           ├─16
+│    │    │    └─BN_HL.bias                                                             └─16
+│    │    └─OctConv (EncodeConv2)             [1, 16, 48, 48, 48]  [1, 16, 48, 48, 48]  29,904               True
+│    │    │    └─convHH.weight                                                          ├─6,912
+│    │    │    └─convHH.bias                                                            ├─16
+│    │    │    └─convLL.weight                                                          ├─6,912
+│    │    │    └─convLL.bias                                                            ├─16
+│    │    │    └─convHL.weight                                                          ├─6,912
+│    │    │    └─convHL.bias                                                            ├─16
+│    │    │    └─convLH.weight                                                          ├─6,912
+│    │    │    └─convLH.bias                                                            ├─16
+│    │    │    └─up.weight                                                              ├─2,048
+│    │    │    └─up.bias                                                                ├─16
+│    │    │    └─BN_HH.weight                                                           ├─16
+│    │    │    └─BN_HH.bias                                                             ├─16
+│    │    │    └─BN_LH.weight                                                           ├─16
+│    │    │    └─BN_LH.bias                                                             ├─16
+│    │    │    └─BN_LL.weight                                                           ├─16
+│    │    │    └─BN_LL.bias                                                             ├─16
+│    │    │    └─BN_HL.weight                                                           ├─16
+│    │    │    └─BN_HL.bias                                                             └─16
+│    └─OctEncodingBlocks (1)                  [1, 16, 24, 24, 24]  [1, 32, 24, 24, 24]  --                   True
+│    │    └─EncodeConv1.convHH.weight                                                   ├─13,824
+│    │    └─EncodeConv1.convHH.bias                                                     ├─32
+│    │    └─EncodeConv1.convLL.weight                                                   ├─13,824
+│    │    └─EncodeConv1.convLL.bias                                                     ├─32
+│    │    └─EncodeConv1.convHL.weight                                                   ├─13,824
+│    │    └─EncodeConv1.convHL.bias                                                     ├─32
+│    │    └─EncodeConv1.convLH.weight                                                   ├─13,824
+│    │    └─EncodeConv1.convLH.bias                                                     ├─32
+│    │    └─EncodeConv1.up.weight                                                       ├─8,192
+│    │    └─EncodeConv1.up.bias                                                         ├─32
+│    │    └─EncodeConv1.BN_HH.weight                                                    ├─32
+│    │    └─EncodeConv1.BN_HH.bias                                                      ├─32
+│    │    └─EncodeConv1.BN_LH.weight                                                    ├─32
+│    │    └─EncodeConv1.BN_LH.bias                                                      ├─32
+│    │    └─EncodeConv1.BN_LL.weight                                                    ├─32
+│    │    └─EncodeConv1.BN_LL.bias                                                      ├─32
+│    │    └─EncodeConv1.BN_HL.weight                                                    ├─32
+│    │    └─EncodeConv1.BN_HL.bias                                                      ├─32
+│    │    └─EncodeConv2.convHH.weight                                                   ├─27,648
+│    │    └─EncodeConv2.convHH.bias                                                     ├─32
+│    │    └─EncodeConv2.convLL.weight                                                   ├─27,648
+│    │    └─EncodeConv2.convLL.bias                                                     ├─32
+│    │    └─EncodeConv2.convHL.weight                                                   ├─27,648
+│    │    └─EncodeConv2.convHL.bias                                                     ├─32
+│    │    └─EncodeConv2.convLH.weight                                                   ├─27,648
+│    │    └─EncodeConv2.convLH.bias                                                     ├─32
+│    │    └─EncodeConv2.up.weight                                                       ├─8,192
+│    │    └─EncodeConv2.up.bias                                                         ├─32
+│    │    └─EncodeConv2.BN_HH.weight                                                    ├─32
+│    │    └─EncodeConv2.BN_HH.bias                                                      ├─32
+│    │    └─EncodeConv2.BN_LH.weight                                                    ├─32
+│    │    └─EncodeConv2.BN_LH.bias                                                      ├─32
+│    │    └─EncodeConv2.BN_LL.weight                                                    ├─32
+│    │    └─EncodeConv2.BN_LL.bias                                                      ├─32
+│    │    └─EncodeConv2.BN_HL.weight                                                    ├─32
+│    │    └─EncodeConv2.BN_HL.bias                                                      └─32
+│    │    └─OctConv (EncodeConv1)             [1, 16, 24, 24, 24]  [1, 32, 24, 24, 24]  63,904               True
+│    │    │    └─convHH.weight                                                          ├─13,824
+│    │    │    └─convHH.bias                                                            ├─32
+│    │    │    └─convLL.weight                                                          ├─13,824
+│    │    │    └─convLL.bias                                                            ├─32
+│    │    │    └─convHL.weight                                                          ├─13,824
+│    │    │    └─convHL.bias                                                            ├─32
+│    │    │    └─convLH.weight                                                          ├─13,824
+│    │    │    └─convLH.bias                                                            ├─32
+│    │    │    └─up.weight                                                              ├─8,192
+│    │    │    └─up.bias                                                                ├─32
+│    │    │    └─BN_HH.weight                                                           ├─32
+│    │    │    └─BN_HH.bias                                                             ├─32
+│    │    │    └─BN_LH.weight                                                           ├─32
+│    │    │    └─BN_LH.bias                                                             ├─32
+│    │    │    └─BN_LL.weight                                                           ├─32
+│    │    │    └─BN_LL.bias                                                             ├─32
+│    │    │    └─BN_HL.weight                                                           ├─32
+│    │    │    └─BN_HL.bias                                                             └─32
+│    │    └─OctConv (EncodeConv2)             [1, 32, 24, 24, 24]  [1, 32, 24, 24, 24]  119,200              True
+│    │    │    └─convHH.weight                                                          ├─27,648
+│    │    │    └─convHH.bias                                                            ├─32
+│    │    │    └─convLL.weight                                                          ├─27,648
+│    │    │    └─convLL.bias                                                            ├─32
+│    │    │    └─convHL.weight                                                          ├─27,648
+│    │    │    └─convHL.bias                                                            ├─32
+│    │    │    └─convLH.weight                                                          ├─27,648
+│    │    │    └─convLH.bias                                                            ├─32
+│    │    │    └─up.weight                                                              ├─8,192
+│    │    │    └─up.bias                                                                ├─32
+│    │    │    └─BN_HH.weight                                                           ├─32
+│    │    │    └─BN_HH.bias                                                             ├─32
+│    │    │    └─BN_LH.weight                                                           ├─32
+│    │    │    └─BN_LH.bias                                                             ├─32
+│    │    │    └─BN_LL.weight                                                           ├─32
+│    │    │    └─BN_LL.bias                                                             ├─32
+│    │    │    └─BN_HL.weight                                                           ├─32
+│    │    │    └─BN_HL.bias                                                             └─32
+├─OctMidBlocks (MidConv1)                     [1, 32, 12, 12, 12]  [1, 32, 12, 12, 12]  --                   True
+│    └─MidConv1.convHH.weight                                                           ├─55,296
+│    └─MidConv1.convHH.bias                                                             ├─64
+│    └─MidConv1.convLL.weight                                                           ├─55,296
+│    └─MidConv1.convLL.bias                                                             ├─64
+│    └─MidConv1.convHL.weight                                                           ├─55,296
+│    └─MidConv1.convHL.bias                                                             ├─64
+│    └─MidConv1.convLH.weight                                                           ├─55,296
+│    └─MidConv1.convLH.bias                                                             ├─64
+│    └─MidConv1.up.weight                                                               ├─32,768
+│    └─MidConv1.up.bias                                                                 ├─64
+│    └─MidConv1.BN_HH.weight                                                            ├─64
+│    └─MidConv1.BN_HH.bias                                                              ├─64
+│    └─MidConv1.BN_LH.weight                                                            ├─64
+│    └─MidConv1.BN_LH.bias                                                              ├─64
+│    └─MidConv1.BN_LL.weight                                                            ├─64
+│    └─MidConv1.BN_LL.bias                                                              ├─64
+│    └─MidConv1.BN_HL.weight                                                            ├─64
+│    └─MidConv1.BN_HL.bias                                                              ├─64
+│    └─MidConv2.convHH.weight                                                           ├─55,296
+│    └─MidConv2.convHH.bias                                                             ├─32
+│    └─MidConv2.convLL.weight                                                           ├─55,296
+│    └─MidConv2.convLL.bias                                                             ├─32
+│    └─MidConv2.convHL.weight                                                           ├─55,296
+│    └─MidConv2.convHL.bias                                                             ├─32
+│    └─MidConv2.convLH.weight                                                           ├─55,296
+│    └─MidConv2.convLH.bias                                                             ├─32
+│    └─MidConv2.up.weight                                                               ├─8,192
+│    └─MidConv2.up.bias                                                                 ├─32
+│    └─MidConv2.BN_HH.weight                                                            ├─32
+│    └─MidConv2.BN_HH.bias                                                              ├─32
+│    └─MidConv2.BN_LH.weight                                                            ├─32
+│    └─MidConv2.BN_LH.bias                                                              ├─32
+│    └─MidConv2.BN_LL.weight                                                            ├─32
+│    └─MidConv2.BN_LL.bias                                                              ├─32
+│    └─MidConv2.BN_HL.weight                                                            ├─32
+│    └─MidConv2.BN_HL.bias                                                              └─32
+│    └─OctConv (MidConv1)                     [1, 32, 12, 12, 12]  [1, 64, 12, 12, 12]  --                   True
+│    │    └─convHH.weight                                                               ├─55,296
+│    │    └─convHH.bias                                                                 ├─64
+│    │    └─convLL.weight                                                               ├─55,296
+│    │    └─convLL.bias                                                                 ├─64
+│    │    └─convHL.weight                                                               ├─55,296
+│    │    └─convHL.bias                                                                 ├─64
+│    │    └─convLH.weight                                                               ├─55,296
+│    │    └─convLH.bias                                                                 ├─64
+│    │    └─up.weight                                                                   ├─32,768
+│    │    └─up.bias                                                                     ├─64
+│    │    └─BN_HH.weight                                                                ├─64
+│    │    └─BN_HH.bias                                                                  ├─64
+│    │    └─BN_LH.weight                                                                ├─64
+│    │    └─BN_LH.bias                                                                  ├─64
+│    │    └─BN_LL.weight                                                                ├─64
+│    │    └─BN_LL.bias                                                                  ├─64
+│    │    └─BN_HL.weight                                                                ├─64
+│    │    └─BN_HL.bias                                                                  └─64
+│    │    └─Conv3d (convHH)                   [1, 32, 12, 12, 12]  [1, 64, 12, 12, 12]  55,360               True
+│    │    │    └─weight                                                                 ├─55,296
+│    │    │    └─bias                                                                   └─64
+│    │    └─Conv3d (convLH)                   [1, 32, 6, 6, 6]     [1, 64, 6, 6, 6]     55,360               True
+│    │    │    └─weight                                                                 ├─55,296
+│    │    │    └─bias                                                                   └─64
+│    │    └─ConvTranspose3d (up)              [1, 64, 6, 6, 6]     [1, 64, 12, 12, 12]  32,832               True
+│    │    │    └─weight                                                                 ├─32,768
+│    │    │    └─bias                                                                   └─64
+│    │    └─BatchNorm3d (BN_HH)               [1, 64, 12, 12, 12]  [1, 64, 12, 12, 12]  128                  True
+│    │    │    └─weight                                                                 ├─64
+│    │    │    └─bias                                                                   └─64
+│    │    └─BatchNorm3d (BN_LH)               [1, 64, 12, 12, 12]  [1, 64, 12, 12, 12]  128                  True
+│    │    │    └─weight                                                                 ├─64
+│    │    │    └─bias                                                                   └─64
+│    │    └─Conv3d (convLL)                   [1, 32, 6, 6, 6]     [1, 64, 6, 6, 6]     55,360               True
+│    │    │    └─weight                                                                 ├─55,296
+│    │    │    └─bias                                                                   └─64
+│    │    └─Conv3d (convHL)                   [1, 32, 6, 6, 6]     [1, 64, 6, 6, 6]     55,360               True
+│    │    │    └─weight                                                                 ├─55,296
+│    │    │    └─bias                                                                   └─64
+│    │    └─BatchNorm3d (BN_LL)               [1, 64, 6, 6, 6]     [1, 64, 6, 6, 6]     128                  True
+│    │    │    └─weight                                                                 ├─64
+│    │    │    └─bias                                                                   └─64
+│    │    └─BatchNorm3d (BN_HL)               [1, 64, 6, 6, 6]     [1, 64, 6, 6, 6]     128                  True
+│    │    │    └─weight                                                                 ├─64
+│    │    │    └─bias                                                                   └─64
+│    │    └─ReLU (ReLU_H)                     [1, 64, 12, 12, 12]  [1, 64, 12, 12, 12]  --                   --
+│    │    └─ReLU (ReLU_L)                     [1, 64, 6, 6, 6]     [1, 64, 6, 6, 6]     --                   --
+│    └─OctConv (MidConv2)                     [1, 64, 12, 12, 12]  [1, 32, 12, 12, 12]  --                   True
+│    │    └─convHH.weight                                                               ├─55,296
+│    │    └─convHH.bias                                                                 ├─32
+│    │    └─convLL.weight                                                               ├─55,296
+│    │    └─convLL.bias                                                                 ├─32
+│    │    └─convHL.weight                                                               ├─55,296
+│    │    └─convHL.bias                                                                 ├─32
+│    │    └─convLH.weight                                                               ├─55,296
+│    │    └─convLH.bias                                                                 ├─32
+│    │    └─up.weight                                                                   ├─8,192
+│    │    └─up.bias                                                                     ├─32
+│    │    └─BN_HH.weight                                                                ├─32
+│    │    └─BN_HH.bias                                                                  ├─32
+│    │    └─BN_LH.weight                                                                ├─32
+│    │    └─BN_LH.bias                                                                  ├─32
+│    │    └─BN_LL.weight                                                                ├─32
+│    │    └─BN_LL.bias                                                                  ├─32
+│    │    └─BN_HL.weight                                                                ├─32
+│    │    └─BN_HL.bias                                                                  └─32
+│    │    └─Conv3d (convHH)                   [1, 64, 12, 12, 12]  [1, 32, 12, 12, 12]  55,328               True
+│    │    │    └─weight                                                                 ├─55,296
+│    │    │    └─bias                                                                   └─32
+│    │    └─Conv3d (convLH)                   [1, 64, 6, 6, 6]     [1, 32, 6, 6, 6]     55,328               True
+│    │    │    └─weight                                                                 ├─55,296
+│    │    │    └─bias                                                                   └─32
+│    │    └─ConvTranspose3d (up)              [1, 32, 6, 6, 6]     [1, 32, 12, 12, 12]  8,224                True
+│    │    │    └─weight                                                                 ├─8,192
+│    │    │    └─bias                                                                   └─32
+│    │    └─BatchNorm3d (BN_HH)               [1, 32, 12, 12, 12]  [1, 32, 12, 12, 12]  64                   True
+│    │    │    └─weight                                                                 ├─32
+│    │    │    └─bias                                                                   └─32
+│    │    └─BatchNorm3d (BN_LH)               [1, 32, 12, 12, 12]  [1, 32, 12, 12, 12]  64                   True
+│    │    │    └─weight                                                                 ├─32
+│    │    │    └─bias                                                                   └─32
+│    │    └─Conv3d (convLL)                   [1, 64, 6, 6, 6]     [1, 32, 6, 6, 6]     55,328               True
+│    │    │    └─weight                                                                 ├─55,296
+│    │    │    └─bias                                                                   └─32
+│    │    └─Conv3d (convHL)                   [1, 64, 6, 6, 6]     [1, 32, 6, 6, 6]     55,328               True
+│    │    │    └─weight                                                                 ├─55,296
+│    │    │    └─bias                                                                   └─32
+│    │    └─BatchNorm3d (BN_LL)               [1, 32, 6, 6, 6]     [1, 32, 6, 6, 6]     64                   True
+│    │    │    └─weight                                                                 ├─32
+│    │    │    └─bias                                                                   └─32
+│    │    └─BatchNorm3d (BN_HL)               [1, 32, 6, 6, 6]     [1, 32, 6, 6, 6]     64                   True
+│    │    │    └─weight                                                                 ├─32
+│    │    │    └─bias                                                                   └─32
+│    │    └─ReLU (ReLU_H)                     [1, 32, 12, 12, 12]  [1, 32, 12, 12, 12]  --                   --
+│    │    └─ReLU (ReLU_L)                     [1, 32, 6, 6, 6]     [1, 32, 6, 6, 6]     --                   --
+├─ModuleList (DecodeConvs)                    --                   --                   --                   True
+│    └─0.up.up_HH.weight                                                                ├─8,192
+│    └─0.up.up_HH.bias                                                                  ├─32
+│    └─0.up.up_LH.weight                                                                ├─65,536
+│    └─0.up.up_LH.bias                                                                  ├─32
+│    └─0.up.BN_H.weight                                                                 ├─32
+│    └─0.up.BN_H.bias                                                                   ├─32
+│    └─0.up.up_LL.weight                                                                ├─8,192
+│    └─0.up.up_LL.bias                                                                  ├─32
+│    └─0.up.up_HL.weight                                                                ├─27,648
+│    └─0.up.up_HL.bias                                                                  ├─32
+│    └─0.up.BN_L.weight                                                                 ├─32
+│    └─0.up.BN_L.bias                                                                   ├─32
+│    └─0.DecodeConv1.convHH.weight                                                      ├─55,296
+│    └─0.DecodeConv1.convHH.bias                                                        ├─32
+│    └─0.DecodeConv1.convLL.weight                                                      ├─55,296
+│    └─0.DecodeConv1.convLL.bias                                                        ├─32
+│    └─0.DecodeConv1.convHL.weight                                                      ├─55,296
+│    └─0.DecodeConv1.convHL.bias                                                        ├─32
+│    └─0.DecodeConv1.convLH.weight                                                      ├─55,296
+│    └─0.DecodeConv1.convLH.bias                                                        ├─32
+│    └─0.DecodeConv1.up.weight                                                          ├─8,192
+│    └─0.DecodeConv1.up.bias                                                            ├─32
+│    └─0.DecodeConv1.BN_HH.weight                                                       ├─32
+│    └─0.DecodeConv1.BN_HH.bias                                                         ├─32
+│    └─0.DecodeConv1.BN_LH.weight                                                       ├─32
+│    └─0.DecodeConv1.BN_LH.bias                                                         ├─32
+│    └─0.DecodeConv1.BN_LL.weight                                                       ├─32
+│    └─0.DecodeConv1.BN_LL.bias                                                         ├─32
+│    └─0.DecodeConv1.BN_HL.weight                                                       ├─32
+│    └─0.DecodeConv1.BN_HL.bias                                                         ├─32
+│    └─0.DecodeConv2.convHH.weight                                                      ├─13,824
+│    └─0.DecodeConv2.convHH.bias                                                        ├─16
+│    └─0.DecodeConv2.convLL.weight                                                      ├─13,824
+│    └─0.DecodeConv2.convLL.bias                                                        ├─16
+│    └─0.DecodeConv2.convHL.weight                                                      ├─13,824
+│    └─0.DecodeConv2.convHL.bias                                                        ├─16
+│    └─0.DecodeConv2.convLH.weight                                                      ├─13,824
+│    └─0.DecodeConv2.convLH.bias                                                        ├─16
+│    └─0.DecodeConv2.up.weight                                                          ├─2,048
+│    └─0.DecodeConv2.up.bias                                                            ├─16
+│    └─0.DecodeConv2.BN_HH.weight                                                       ├─16
+│    └─0.DecodeConv2.BN_HH.bias                                                         ├─16
+│    └─0.DecodeConv2.BN_LH.weight                                                       ├─16
+│    └─0.DecodeConv2.BN_LH.bias                                                         ├─16
+│    └─0.DecodeConv2.BN_LL.weight                                                       ├─16
+│    └─0.DecodeConv2.BN_LL.bias                                                         ├─16
+│    └─0.DecodeConv2.BN_HL.weight                                                       ├─16
+│    └─0.DecodeConv2.BN_HL.bias                                                         ├─16
+│    └─1.up.up_HH.weight                                                                ├─2,048
+│    └─1.up.up_HH.bias                                                                  ├─16
+│    └─1.up.up_LH.weight                                                                ├─16,384
+│    └─1.up.up_LH.bias                                                                  ├─16
+│    └─1.up.BN_H.weight                                                                 ├─16
+│    └─1.up.BN_H.bias                                                                   ├─16
+│    └─1.up.up_LL.weight                                                                ├─2,048
+│    └─1.up.up_LL.bias                                                                  ├─16
+│    └─1.up.up_HL.weight                                                                ├─6,912
+│    └─1.up.up_HL.bias                                                                  ├─16
+│    └─1.up.BN_L.weight                                                                 ├─16
+│    └─1.up.BN_L.bias                                                                   ├─16
+│    └─1.DecodeConv1.convHH.weight                                                      ├─13,824
+│    └─1.DecodeConv1.convHH.bias                                                        ├─16
+│    └─1.DecodeConv1.convLL.weight                                                      ├─13,824
+│    └─1.DecodeConv1.convLL.bias                                                        ├─16
+│    └─1.DecodeConv1.convHL.weight                                                      ├─13,824
+│    └─1.DecodeConv1.convHL.bias                                                        ├─16
+│    └─1.DecodeConv1.convLH.weight                                                      ├─13,824
+│    └─1.DecodeConv1.convLH.bias                                                        ├─16
+│    └─1.DecodeConv1.up.weight                                                          ├─2,048
+│    └─1.DecodeConv1.up.bias                                                            ├─16
+│    └─1.DecodeConv1.BN_HH.weight                                                       ├─16
+│    └─1.DecodeConv1.BN_HH.bias                                                         ├─16
+│    └─1.DecodeConv1.BN_LH.weight                                                       ├─16
+│    └─1.DecodeConv1.BN_LH.bias                                                         ├─16
+│    └─1.DecodeConv1.BN_LL.weight                                                       ├─16
+│    └─1.DecodeConv1.BN_LL.bias                                                         ├─16
+│    └─1.DecodeConv1.BN_HL.weight                                                       ├─16
+│    └─1.DecodeConv1.BN_HL.bias                                                         ├─16
+│    └─1.DecodeConv2.convHH.weight                                                      ├─6,912
+│    └─1.DecodeConv2.convHH.bias                                                        ├─16
+│    └─1.DecodeConv2.convLL.weight                                                      ├─6,912
+│    └─1.DecodeConv2.convLL.bias                                                        ├─16
+│    └─1.DecodeConv2.convHL.weight                                                      ├─6,912
+│    └─1.DecodeConv2.convHL.bias                                                        ├─16
+│    └─1.DecodeConv2.convLH.weight                                                      ├─6,912
+│    └─1.DecodeConv2.convLH.bias                                                        ├─16
+│    └─1.DecodeConv2.up.weight                                                          ├─2,048
+│    └─1.DecodeConv2.up.bias                                                            ├─16
+│    └─1.DecodeConv2.BN_HH.weight                                                       ├─16
+│    └─1.DecodeConv2.BN_HH.bias                                                         ├─16
+│    └─1.DecodeConv2.BN_LH.weight                                                       ├─16
+│    └─1.DecodeConv2.BN_LH.bias                                                         ├─16
+│    └─1.DecodeConv2.BN_LL.weight                                                       ├─16
+│    └─1.DecodeConv2.BN_LL.bias                                                         ├─16
+│    └─1.DecodeConv2.BN_HL.weight                                                       ├─16
+│    └─1.DecodeConv2.BN_HL.bias                                                         └─16
+│    └─OctDecodingBlocks (0)                  [1, 32, 12, 12, 12]  [1, 16, 24, 24, 24]  --                   True
+│    │    └─up.up_HH.weight                                                             ├─8,192
+│    │    └─up.up_HH.bias                                                               ├─32
+│    │    └─up.up_LH.weight                                                             ├─65,536
+│    │    └─up.up_LH.bias                                                               ├─32
+│    │    └─up.BN_H.weight                                                              ├─32
+│    │    └─up.BN_H.bias                                                                ├─32
+│    │    └─up.up_LL.weight                                                             ├─8,192
+│    │    └─up.up_LL.bias                                                               ├─32
+│    │    └─up.up_HL.weight                                                             ├─27,648
+│    │    └─up.up_HL.bias                                                               ├─32
+│    │    └─up.BN_L.weight                                                              ├─32
+│    │    └─up.BN_L.bias                                                                ├─32
+│    │    └─DecodeConv1.convHH.weight                                                   ├─55,296
+│    │    └─DecodeConv1.convHH.bias                                                     ├─32
+│    │    └─DecodeConv1.convLL.weight                                                   ├─55,296
+│    │    └─DecodeConv1.convLL.bias                                                     ├─32
+│    │    └─DecodeConv1.convHL.weight                                                   ├─55,296
+│    │    └─DecodeConv1.convHL.bias                                                     ├─32
+│    │    └─DecodeConv1.convLH.weight                                                   ├─55,296
+│    │    └─DecodeConv1.convLH.bias                                                     ├─32
+│    │    └─DecodeConv1.up.weight                                                       ├─8,192
+│    │    └─DecodeConv1.up.bias                                                         ├─32
+│    │    └─DecodeConv1.BN_HH.weight                                                    ├─32
+│    │    └─DecodeConv1.BN_HH.bias                                                      ├─32
+│    │    └─DecodeConv1.BN_LH.weight                                                    ├─32
+│    │    └─DecodeConv1.BN_LH.bias                                                      ├─32
+│    │    └─DecodeConv1.BN_LL.weight                                                    ├─32
+│    │    └─DecodeConv1.BN_LL.bias                                                      ├─32
+│    │    └─DecodeConv1.BN_HL.weight                                                    ├─32
+│    │    └─DecodeConv1.BN_HL.bias                                                      ├─32
+│    │    └─DecodeConv2.convHH.weight                                                   ├─13,824
+│    │    └─DecodeConv2.convHH.bias                                                     ├─16
+│    │    └─DecodeConv2.convLL.weight                                                   ├─13,824
+│    │    └─DecodeConv2.convLL.bias                                                     ├─16
+│    │    └─DecodeConv2.convHL.weight                                                   ├─13,824
+│    │    └─DecodeConv2.convHL.bias                                                     ├─16
+│    │    └─DecodeConv2.convLH.weight                                                   ├─13,824
+│    │    └─DecodeConv2.convLH.bias                                                     ├─16
+│    │    └─DecodeConv2.up.weight                                                       ├─2,048
+│    │    └─DecodeConv2.up.bias                                                         ├─16
+│    │    └─DecodeConv2.BN_HH.weight                                                    ├─16
+│    │    └─DecodeConv2.BN_HH.bias                                                      ├─16
+│    │    └─DecodeConv2.BN_LH.weight                                                    ├─16
+│    │    └─DecodeConv2.BN_LH.bias                                                      ├─16
+│    │    └─DecodeConv2.BN_LL.weight                                                    ├─16
+│    │    └─DecodeConv2.BN_LL.bias                                                      ├─16
+│    │    └─DecodeConv2.BN_HL.weight                                                    ├─16
+│    │    └─DecodeConv2.BN_HL.bias                                                      └─16
+│    │    └─OctUp (up)                        [1, 32, 12, 12, 12]  [1, 32, 24, 24, 24]  109,824              True
+│    │    │    └─up_HH.weight                                                           ├─8,192
+│    │    │    └─up_HH.bias                                                             ├─32
+│    │    │    └─up_LH.weight                                                           ├─65,536
+│    │    │    └─up_LH.bias                                                             ├─32
+│    │    │    └─BN_H.weight                                                            ├─32
+│    │    │    └─BN_H.bias                                                              ├─32
+│    │    │    └─up_LL.weight                                                           ├─8,192
+│    │    │    └─up_LL.bias                                                             ├─32
+│    │    │    └─up_HL.weight                                                           ├─27,648
+│    │    │    └─up_HL.bias                                                             ├─32
+│    │    │    └─BN_L.weight                                                            ├─32
+│    │    │    └─BN_L.bias                                                              └─32
+│    │    └─OctConv (DecodeConv1)             [1, 64, 24, 24, 24]  [1, 32, 24, 24, 24]  229,792              True
+│    │    │    └─convHH.weight                                                          ├─55,296
+│    │    │    └─convHH.bias                                                            ├─32
+│    │    │    └─convLL.weight                                                          ├─55,296
+│    │    │    └─convLL.bias                                                            ├─32
+│    │    │    └─convHL.weight                                                          ├─55,296
+│    │    │    └─convHL.bias                                                            ├─32
+│    │    │    └─convLH.weight                                                          ├─55,296
+│    │    │    └─convLH.bias                                                            ├─32
+│    │    │    └─up.weight                                                              ├─8,192
+│    │    │    └─up.bias                                                                ├─32
+│    │    │    └─BN_HH.weight                                                           ├─32
+│    │    │    └─BN_HH.bias                                                             ├─32
+│    │    │    └─BN_LH.weight                                                           ├─32
+│    │    │    └─BN_LH.bias                                                             ├─32
+│    │    │    └─BN_LL.weight                                                           ├─32
+│    │    │    └─BN_LL.bias                                                             ├─32
+│    │    │    └─BN_HL.weight                                                           ├─32
+│    │    │    └─BN_HL.bias                                                             └─32
+│    │    └─OctConv (DecodeConv2)             [1, 32, 24, 24, 24]  [1, 16, 24, 24, 24]  57,552               True
+│    │    │    └─convHH.weight                                                          ├─13,824
+│    │    │    └─convHH.bias                                                            ├─16
+│    │    │    └─convLL.weight                                                          ├─13,824
+│    │    │    └─convLL.bias                                                            ├─16
+│    │    │    └─convHL.weight                                                          ├─13,824
+│    │    │    └─convHL.bias                                                            ├─16
+│    │    │    └─convLH.weight                                                          ├─13,824
+│    │    │    └─convLH.bias                                                            ├─16
+│    │    │    └─up.weight                                                              ├─2,048
+│    │    │    └─up.bias                                                                ├─16
+│    │    │    └─BN_HH.weight                                                           ├─16
+│    │    │    └─BN_HH.bias                                                             ├─16
+│    │    │    └─BN_LH.weight                                                           ├─16
+│    │    │    └─BN_LH.bias                                                             ├─16
+│    │    │    └─BN_LL.weight                                                           ├─16
+│    │    │    └─BN_LL.bias                                                             ├─16
+│    │    │    └─BN_HL.weight                                                           ├─16
+│    │    │    └─BN_HL.bias                                                             └─16
+│    └─OctDecodingBlocks (1)                  [1, 16, 24, 24, 24]  [1, 16, 48, 48, 48]  --                   True
+│    │    └─up.up_HH.weight                                                             ├─2,048
+│    │    └─up.up_HH.bias                                                               ├─16
+│    │    └─up.up_LH.weight                                                             ├─16,384
+│    │    └─up.up_LH.bias                                                               ├─16
+│    │    └─up.BN_H.weight                                                              ├─16
+│    │    └─up.BN_H.bias                                                                ├─16
+│    │    └─up.up_LL.weight                                                             ├─2,048
+│    │    └─up.up_LL.bias                                                               ├─16
+│    │    └─up.up_HL.weight                                                             ├─6,912
+│    │    └─up.up_HL.bias                                                               ├─16
+│    │    └─up.BN_L.weight                                                              ├─16
+│    │    └─up.BN_L.bias                                                                ├─16
+│    │    └─DecodeConv1.convHH.weight                                                   ├─13,824
+│    │    └─DecodeConv1.convHH.bias                                                     ├─16
+│    │    └─DecodeConv1.convLL.weight                                                   ├─13,824
+│    │    └─DecodeConv1.convLL.bias                                                     ├─16
+│    │    └─DecodeConv1.convHL.weight                                                   ├─13,824
+│    │    └─DecodeConv1.convHL.bias                                                     ├─16
+│    │    └─DecodeConv1.convLH.weight                                                   ├─13,824
+│    │    └─DecodeConv1.convLH.bias                                                     ├─16
+│    │    └─DecodeConv1.up.weight                                                       ├─2,048
+│    │    └─DecodeConv1.up.bias                                                         ├─16
+│    │    └─DecodeConv1.BN_HH.weight                                                    ├─16
+│    │    └─DecodeConv1.BN_HH.bias                                                      ├─16
+│    │    └─DecodeConv1.BN_LH.weight                                                    ├─16
+│    │    └─DecodeConv1.BN_LH.bias                                                      ├─16
+│    │    └─DecodeConv1.BN_LL.weight                                                    ├─16
+│    │    └─DecodeConv1.BN_LL.bias                                                      ├─16
+│    │    └─DecodeConv1.BN_HL.weight                                                    ├─16
+│    │    └─DecodeConv1.BN_HL.bias                                                      ├─16
+│    │    └─DecodeConv2.convHH.weight                                                   ├─6,912
+│    │    └─DecodeConv2.convHH.bias                                                     ├─16
+│    │    └─DecodeConv2.convLL.weight                                                   ├─6,912
+│    │    └─DecodeConv2.convLL.bias                                                     ├─16
+│    │    └─DecodeConv2.convHL.weight                                                   ├─6,912
+│    │    └─DecodeConv2.convHL.bias                                                     ├─16
+│    │    └─DecodeConv2.convLH.weight                                                   ├─6,912
+│    │    └─DecodeConv2.convLH.bias                                                     ├─16
+│    │    └─DecodeConv2.up.weight                                                       ├─2,048
+│    │    └─DecodeConv2.up.bias                                                         ├─16
+│    │    └─DecodeConv2.BN_HH.weight                                                    ├─16
+│    │    └─DecodeConv2.BN_HH.bias                                                      ├─16
+│    │    └─DecodeConv2.BN_LH.weight                                                    ├─16
+│    │    └─DecodeConv2.BN_LH.bias                                                      ├─16
+│    │    └─DecodeConv2.BN_LL.weight                                                    ├─16
+│    │    └─DecodeConv2.BN_LL.bias                                                      ├─16
+│    │    └─DecodeConv2.BN_HL.weight                                                    ├─16
+│    │    └─DecodeConv2.BN_HL.bias                                                      └─16
+│    │    └─OctUp (up)                        [1, 16, 24, 24, 24]  [1, 16, 48, 48, 48]  27,520               True
+│    │    │    └─up_HH.weight                                                           ├─2,048
+│    │    │    └─up_HH.bias                                                             ├─16
+│    │    │    └─up_LH.weight                                                           ├─16,384
+│    │    │    └─up_LH.bias                                                             ├─16
+│    │    │    └─BN_H.weight                                                            ├─16
+│    │    │    └─BN_H.bias                                                              ├─16
+│    │    │    └─up_LL.weight                                                           ├─2,048
+│    │    │    └─up_LL.bias                                                             ├─16
+│    │    │    └─up_HL.weight                                                           ├─6,912
+│    │    │    └─up_HL.bias                                                             ├─16
+│    │    │    └─BN_L.weight                                                            ├─16
+│    │    │    └─BN_L.bias                                                              └─16
+│    │    └─OctConv (DecodeConv1)             [1, 32, 48, 48, 48]  [1, 16, 48, 48, 48]  57,552               True
+│    │    │    └─convHH.weight                                                          ├─13,824
+│    │    │    └─convHH.bias                                                            ├─16
+│    │    │    └─convLL.weight                                                          ├─13,824
+│    │    │    └─convLL.bias                                                            ├─16
+│    │    │    └─convHL.weight                                                          ├─13,824
+│    │    │    └─convHL.bias                                                            ├─16
+│    │    │    └─convLH.weight                                                          ├─13,824
+│    │    │    └─convLH.bias                                                            ├─16
+│    │    │    └─up.weight                                                              ├─2,048
+│    │    │    └─up.bias                                                                ├─16
+│    │    │    └─BN_HH.weight                                                           ├─16
+│    │    │    └─BN_HH.bias                                                             ├─16
+│    │    │    └─BN_LH.weight                                                           ├─16
+│    │    │    └─BN_LH.bias                                                             ├─16
+│    │    │    └─BN_LL.weight                                                           ├─16
+│    │    │    └─BN_LL.bias                                                             ├─16
+│    │    │    └─BN_HL.weight                                                           ├─16
+│    │    │    └─BN_HL.bias                                                             └─16
+│    │    └─OctConv (DecodeConv2)             [1, 16, 48, 48, 48]  [1, 16, 48, 48, 48]  29,904               True
+│    │    │    └─convHH.weight                                                          ├─6,912
+│    │    │    └─convHH.bias                                                            ├─16
+│    │    │    └─convLL.weight                                                          ├─6,912
+│    │    │    └─convLL.bias                                                            ├─16
+│    │    │    └─convHL.weight                                                          ├─6,912
+│    │    │    └─convHL.bias                                                            ├─16
+│    │    │    └─convLH.weight                                                          ├─6,912
+│    │    │    └─convLH.bias                                                            ├─16
+│    │    │    └─up.weight                                                              ├─2,048
+│    │    │    └─up.bias                                                                ├─16
+│    │    │    └─BN_HH.weight                                                           ├─16
+│    │    │    └─BN_HH.bias                                                             ├─16
+│    │    │    └─BN_LH.weight                                                           ├─16
+│    │    │    └─BN_LH.bias                                                             ├─16
+│    │    │    └─BN_LL.weight                                                           ├─16
+│    │    │    └─BN_LL.bias                                                             ├─16
+│    │    │    └─BN_HL.weight                                                           ├─16
+│    │    │    └─BN_HL.bias                                                             └─16
+├─OctConv (FinalOct)                          [1, 16, 48, 48, 48]  [1, 1, 48, 48, 48]   --                   True
+│    └─convHH.weight                                                                    ├─13,824
+│    └─convHH.bias                                                                      ├─32
+│    └─convLH.weight                                                                    ├─13,824
+│    └─convLH.bias                                                                      ├─32
+│    └─up.weight                                                                        ├─8,192
+│    └─up.bias                                                                          ├─32
+│    └─BN_HH.weight                                                                     ├─32
+│    └─BN_HH.bias                                                                       ├─32
+│    └─BN_LH.weight                                                                     ├─32
+│    └─BN_LH.bias                                                                       ├─32
+│    └─FinalConv.weight                                                                 ├─32
+│    └─FinalConv.bias                                                                   └─1
+│    └─Conv3d (convHH)                        [1, 16, 48, 48, 48]  [1, 32, 48, 48, 48]  13,856               True
+│    │    └─weight                                                                      ├─13,824
+│    │    └─bias                                                                        └─32
+│    └─BatchNorm3d (BN_HH)                    [1, 32, 48, 48, 48]  [1, 32, 48, 48, 48]  64                   True
+│    │    └─weight                                                                      ├─32
+│    │    └─bias                                                                        └─32
+│    └─Conv3d (convLH)                        [1, 16, 24, 24, 24]  [1, 32, 24, 24, 24]  13,856               True
+│    │    └─weight                                                                      ├─13,824
+│    │    └─bias                                                                        └─32
+│    └─ConvTranspose3d (up)                   [1, 32, 24, 24, 24]  [1, 32, 48, 48, 48]  8,224                True
+│    │    └─weight                                                                      ├─8,192
+│    │    └─bias                                                                        └─32
+│    └─BatchNorm3d (BN_LH)                    [1, 32, 48, 48, 48]  [1, 32, 48, 48, 48]  64                   True
+│    │    └─weight                                                                      ├─32
+│    │    └─bias                                                                        └─32
+│    └─ReLU (ReLU_H)                          [1, 32, 48, 48, 48]  [1, 32, 48, 48, 48]  --                   --
+│    └─Conv3d (FinalConv)                     [1, 32, 48, 48, 48]  [1, 1, 48, 48, 48]   33                   True
+│    │    └─weight                                                                      ├─32
+│    │    └─bias                                                                        └─1
+=============================================================================================================================
+Total params: 1,306,593
+Trainable params: 1,306,593
+Non-trainable params: 0
+Total mult-adds (G): 16.21
+=============================================================================================================================
+Input size (MB): 0.44
+Forward/backward pass size (MB): 600.02
+Params size (MB): 5.23
+Estimated Total Size (MB): 605.69
+=============================================================================================================================
+
+================================================================================
+LAYER-BY-LAYER ANALYSIS FOR FREEZING
+================================================================================
+
+Layers available for freezing:
+--------------------------------------------------
+1. INPUT OCTAVE LAYER:
+   - InputOct: 30,864 parameters
+
+2. ENCODING LAYERS:
+   - EncodeConv1: 59,808 parameters
+   - EncodeConv2: 183,104 parameters
+
+3. MIDDLE LAYER:
+   - MidConv1: 484,576 parameters
+
+4. DECODING LAYERS:
+   - DecodeConv1: 397,168 parameters
+   - DecodeConv2: 114,976 parameters
+
+5. FINAL LAYER:
+   - FinalOct: 36,097 parameters
+
+================================================================================
+FREEZING RECOMMENDATIONS
+================================================================================
+
+For transfer learning on head and neck dataset:
+- Consider freezing: Early encoding layers (EncodeConv1, EncodeConv2)
+- Keep trainable: Later decoding layers and FinalOct for domain adaptation
+- Middle layers: Can be frozen or kept trainable based on dataset similarity
+
+Parameter distribution:
+- Encoding layers: 242,912 parameters (18.6%)
+- Decoding layers: 512,144 parameters (39.2%)
+- Other layers: 551,537 parameters
+
+Transfer Learning Impact Analysis:
+- If freezing InputOct + Encoding layers:
+  * Frozen parameters: 273,776 (21.0%)
+  * Trainable parameters: 1,032,817 (79.0%)
+  * Training speedup: ~1.3x faster
+
+================================================================================
+EXAMPLE: HOW TO FREEZE LAYERS
+================================================================================
+
+# Example code to freeze specific layers:
+
+model = xQSM(EncodingDepth=2, ini_chNo=32)
+
+# Freeze early encoding layers (feature extractors)
+for param in model.InputOct.parameters():
+    param.requires_grad = False
+
+for param in model.EncodeConvs[0].parameters():  # First encoding layer
+    param.requires_grad = False
+
+# Optional: Freeze second encoding layer too
+# for param in model.EncodeConvs[1].parameters():
+#     param.requires_grad = False
+
+# Keep decoding layers trainable for domain adaptation
+# (No changes needed - they remain trainable by default)
+
+# Verify which parameters are frozen:
+trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+total_params = sum(p.numel() for p in model.parameters())
+print(f"Trainable: {trainable_params:,} / {total_params:,} parameters")
+
+================================================================================
+ANALYSIS COMPLETE
+================================================================================
+Use this information to decide which layers to freeze for your head and neck dataset.
+Generally, freeze early layers (feature extractors) and fine-tune later layers.
