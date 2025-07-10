@@ -1,0 +1,6 @@
+torch>=1.8.0
+torchinfo>=1.7.0
+numpy
+torch
+nibabel
+scipy
