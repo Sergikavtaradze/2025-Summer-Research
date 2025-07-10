@@ -1,0 +1,169 @@
+Starting comprehensive QSM DataLoader tests...
+Test started at: 2025-07-10 15:45:56
+Output will be saved to: dataloader_test_output_20250710_154556.txt
+
+============================================================
+TESTING BASIC DATALOADER FUNCTIONALITY
+============================================================
+1. Creating dataset...
+Found 60 data pairs
+✓ Dataset created successfully
+✓ Found 60 data pairs
+✓ Available subjects: ['sub-04', 'sub-01', 'sub-02', 'sub-09', 'sub-08', 'sub-06', 'sub-03', 'sub-05', 'sub-10', 'sub-07']
+✓ Available sessions: ['ses-06', 'ses-02', 'ses-03', 'ses-04', 'ses-05', 'ses-01']
+
+2. Testing individual item loading...
+✓ Successfully loaded item 0: sub-08_ses-02
+✓ Input tensor shape: torch.Size([1, 192, 192, 192])
+✓ Target tensor shape: torch.Size([1, 192, 192, 192])
+✓ Input data type: torch.float32
+✓ Target data type: torch.float32
+✓ Input range: [-15.602872, 11.750703]
+✓ Target range: [-1.011566, 0.724440]
+
+============================================================
+TESTING DATALOADER BATCHING
+============================================================
+Found 60 data pairs
+✓ DataLoader created with batch size 2
+
+Batch 1:
+  Names: ('sub-08_ses-02', 'sub-08_ses-05')
+  Input batch shape: torch.Size([2, 1, 192, 192, 192])
+  Target batch shape: torch.Size([2, 1, 192, 192, 192])
+  Input range: [-15.602872, 13.943251]
+  Target range: [-1.011566, 0.724440]
+  ✓ Correct batch size: 2
+
+Batch 2:
+  Names: ('sub-08_ses-04', 'sub-08_ses-03')
+  Input batch shape: torch.Size([2, 1, 192, 192, 192])
+  Target batch shape: torch.Size([2, 1, 192, 192, 192])
+  Input range: [-13.812759, 16.974400]
+  Target range: [-1.083256, 0.796732]
+  ✓ Correct batch size: 2
+
+Batch 3:
+  Names: ('sub-08_ses-06', 'sub-08_ses-01')
+  Input batch shape: torch.Size([2, 1, 192, 192, 192])
+  Target batch shape: torch.Size([2, 1, 192, 192, 192])
+  Input range: [-9.032474, 21.663612]
+  Target range: [-0.800329, 0.750389]
+  ✓ Correct batch size: 2
+✓ Batching test completed successfully
+
+============================================================
+TESTING NOISE AUGMENTATION
+============================================================
+Found 60 data pairs
+Found 60 data pairs
+✓ Original input range: [-15.602872, 11.750703]
+NOTE: No noise was added in this test (20% probability)
+
+============================================================
+TESTING FILE PATHS
+============================================================
+Found 60 data pairs
+Checking file paths for 60 items...
+
+✓ Item 0: sub-08_ses-02
+  Input:  sub-08_ses-02_unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz
+  Target: sub-08_ses-02_unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz
+  Filename differences:
+     Input contains:  'localfield.nii.gz'
+     Target contains: 'susc-autoNDI_Chimap.nii.gz'
+     Common prefix: 'sub-08_ses-02'
+     Input suffix:  'unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz'
+     Target suffix: 'unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz'
+
+✓ Item 1: sub-08_ses-05
+  Input:  sub-08_ses-05_unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz
+  Target: sub-08_ses-05_unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz
+  Filename differences:
+     Input contains:  'localfield.nii.gz'
+     Target contains: 'susc-autoNDI_Chimap.nii.gz'
+     Common prefix: 'sub-08_ses-05'
+     Input suffix:  'unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz'
+     Target suffix: 'unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz'
+
+✓ Item 2: sub-08_ses-04
+  Input:  sub-08_ses-04_unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz
+  Target: sub-08_ses-04_unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz
+  Filename differences:
+     Input contains:  'localfield.nii.gz'
+     Target contains: 'susc-autoNDI_Chimap.nii.gz'
+     Common prefix: 'sub-08_ses-04'
+     Input suffix:  'unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz'
+     Target suffix: 'unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz'
+
+✓ Item 3: sub-08_ses-03
+  Input:  sub-08_ses-03_unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz
+  Target: sub-08_ses-03_unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz
+  Filename differences:
+     Input contains:  'localfield.nii.gz'
+     Target contains: 'susc-autoNDI_Chimap.nii.gz'
+     Common prefix: 'sub-08_ses-03'
+     Input suffix:  'unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz'
+     Target suffix: 'unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz'
+
+✓ Item 4: sub-08_ses-06
+  Input:  sub-08_ses-06_unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz
+  Target: sub-08_ses-06_unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz
+  Filename differences:
+     Input contains:  'localfield.nii.gz'
+     Target contains: 'susc-autoNDI_Chimap.nii.gz'
+     Common prefix: 'sub-08_ses-06'
+     Input suffix:  'unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz'
+     Target suffix: 'unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz'
+
+✓ All 60 file paths are valid
+
+============================================================
+TESTING DATA CONSISTENCY
+============================================================
+Found 60 data pairs
+Item 0 (sub-08_ses-02):
+  Input shape:  torch.Size([1, 192, 192, 192])
+  Target shape: torch.Size([1, 192, 192, 192])
+  ✓ Spatial dimensions match: torch.Size([192, 192, 192])
+Item 1 (sub-08_ses-05):
+  Input shape:  torch.Size([1, 192, 192, 192])
+  Target shape: torch.Size([1, 192, 192, 192])
+  ✓ Spatial dimensions match: torch.Size([192, 192, 192])
+Item 2 (sub-08_ses-04):
+  Input shape:  torch.Size([1, 192, 192, 192])
+  Target shape: torch.Size([1, 192, 192, 192])
+  ✓ Spatial dimensions match: torch.Size([192, 192, 192])
+Item 3 (sub-08_ses-03):
+  Input shape:  torch.Size([1, 192, 192, 192])
+  Target shape: torch.Size([1, 192, 192, 192])
+  ✓ Spatial dimensions match: torch.Size([192, 192, 192])
+Item 4 (sub-08_ses-06):
+  Input shape:  torch.Size([1, 192, 192, 192])
+  Target shape: torch.Size([1, 192, 192, 192])
+  ✓ Spatial dimensions match: torch.Size([192, 192, 192])
+✓ All input tensors have consistent shape: torch.Size([1, 192, 192, 192])
+✓ All target tensors have consistent shape: torch.Size([1, 192, 192, 192])
+
+============================================================
+TESTING LOADING PERFORMANCE
+============================================================
+Found 60 data pairs
+Timing 10 batches...
+✓ Total time for 10 batches: 9.67 seconds
+✓ Average time per batch: 0.967 seconds
+✓ Samples per second: 4.1
+
+============================================================
+TEST SUMMARY
+============================================================
+Basic Functionality: PASSED
+DataLoader Batching: PASSED
+Noise Augmentation: PASSED
+File Paths: PASSED
+Data Consistency: PASSED
+Performance: PASSED
+
+Overall: 6/6 tests passed
+Test completed at: 2025-07-10 15:46:09
+All tests passed! Your dataloader is working correctly.
