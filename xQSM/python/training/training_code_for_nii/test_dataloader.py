@@ -12,7 +12,7 @@ from datetime import datetime
 
 # Add the current directory to Python path to import TrainingDataLoad
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from TrainingDataLoad import QSMDataSet
+from TrainingDataLoadHN import QSMDataSet
 
 class Logger:
     """Logger class to write output to both console and file"""
