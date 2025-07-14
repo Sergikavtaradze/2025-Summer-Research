@@ -67,8 +67,8 @@ QSM_data/
 ## Quick Start
 
 ### 1. Test CPU Training (Recommended First)
+Test that everything works with minimal resources
 ```bash
-# Test that everything works with minimal resources
 python TrainPh2QSMNet_TransferLearning.py
 ```
 This runs in test mode by default:
@@ -79,8 +79,8 @@ This runs in test mode by default:
 - Verifies data loading and model forward/backward passes
 
 ### 2. Analyze Model Structure
+Generate detailed model summary
 ```bash
-# Generate detailed model summary
 python model_summary.py
 ```
 This creates a text file with:
@@ -89,8 +89,8 @@ This creates a text file with:
 - Transfer learning impact analysis
 
 ### 3. Test Dataset Loading
+Verify your dataset is correctly formatted
 ```bash
-# Verify your dataset is correctly formatted
 python test_dataloader.py
 ```
 
