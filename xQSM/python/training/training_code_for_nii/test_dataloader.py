@@ -7,9 +7,7 @@ import sys
 import os
 import time
 import torch
-import numpy as np
 from torch.utils.data import DataLoader
-import matplotlib.pyplot as plt
 from datetime import datetime
 
 # Add the current directory to Python path to import TrainingDataLoad
