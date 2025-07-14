@@ -64,17 +64,6 @@ QSM_data/
 6. **Monitor**: Track progress and adjust parameters as needed
 7. **Evaluate**: Test trained model on validation data
 
-## Contact & Support
-
-For questions about:
-- **Model architecture**: Check `xQSM.py` and `xQSM_blocks.py`
-- **Data loading**: See `TrainingDataLoadHN.py` and `test_dataloader.py`
-- **Training issues**: Review console output and adjust parameters
-- **Performance**: Use model summary and monitoring tools
-
-Happy training! 🚀
-```
-
 ## Quick Start
 
 ### 1. Test CPU Training (Recommended First)
@@ -138,7 +127,7 @@ LEARNING_RATE = 0.0001         # Lower for transfer learning
 BATCH_SIZE = 4                 # Adjust based on GPU memory
 EPOCHS = 50                    # Fewer epochs needed for transfer learning
 
-# Transfer Learning
+# Test Mode
 max_test_batches = 2           # Batches per epoch in test mode
 max_test_epochs = 1            # Epochs in test mode
 ```
@@ -162,11 +151,6 @@ ini_chNo = 32                  # Initial number of channels
 - `DecodeConv1`: First decoding layer  
 - `DecodeConv2`: Second decoding layer
 - `FinalOct`: Final output layer
-
-### Benefits:
-- **Faster Training**: ~60-70% fewer parameters to train
-- **Less Data Required**: Leverage pre-trained features
-- **Better Generalization**: Pre-trained features + domain-specific adaptation
 
 ## Training Process
 
@@ -244,15 +228,6 @@ TEST_MODE = True
 max_test_batches = 1
 ```
 
-### Debugging Steps:
-
-1. **Run in test mode first**: Verify setup with minimal resources
-2. **Check data loading**: Use `test_dataloader.py`
-3. **Analyze model**: Use `model_summary.py`
-4. **Monitor GPU memory**: Check CUDA memory usage in logs
-5. **Reduce batch size**: Start small and increase gradually
-
-
 ## Model Analysis
 
 Use the model summary tool to understand your model:
@@ -261,8 +236,19 @@ Use the model summary tool to understand your model:
 python model_summary.py
 ```
 
-This generates analysis including:
-<!-- - Parameter distribution across layers
+## Contact & Support
+
+For questions about:
+- **Model architecture**: Check `xQSM.py` and `xQSM_blocks.py`
+- **Data loading**: See `TrainingDataLoadHN.py` and `test_dataloader.py`
+- **Training issues**: Review console output and adjust parameters
+- **Performance**: Use model summary and monitoring tools
+
+Happy training! 🚀
+```
+
+<!-- This generates analysis including:
+- Parameter distribution across layers
 - Memory requirements
 - Freezing impact on training speed
 - Recommendations for transfer learning -->
