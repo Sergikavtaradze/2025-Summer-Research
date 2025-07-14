@@ -172,7 +172,7 @@ def SigPower(ins):
 # Test the dataloader
 if __name__ == '__main__':
     # Update this path to your QSM data directory
-    DATA_DIRECTORY = '/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data'
+    DATA_DIRECTORY = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'
     BATCH_SIZE = 2
 
     try:

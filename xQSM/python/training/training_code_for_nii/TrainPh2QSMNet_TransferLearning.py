@@ -414,11 +414,11 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_
 
 if __name__ == '__main__':
     # Configuration
-    DATA_DIRECTORY = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'  # Relative path to data directory
-    PRETRAINED_PATH = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/HN_Checkpoints/xQSM_invivo.pth'  # Path to pretrained weights (optional)
+    data_directory = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'  # Relative path to data directory
+    pretrained_path = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/HN_Checkpoints/xQSM_invivo.pth'  # Path to pretrained weights (optional)
     
     # Test mode parameters
-    TEST_MODE = True  # Set to True for CPU testing, False for full training
+    TEST_MODE = False  # Set to True for CPU testing, False for full training
     
     if TEST_MODE:
         print("="*80)
@@ -433,35 +433,35 @@ if __name__ == '__main__':
         print("="*80)
         
         # Test parameters
-        LEARNING_RATE = 0.001  # Higher LR for quick testing
-        BATCH_SIZE = 1  # Small batch size for CPU
-        EPOCHS = 1  # Just test a couple epochs
-        USE_GPU = False  # CPU only for testing
+        learning_rate = 0.001  # Higher LR for quick testing
+        batch_size = 1  # Small batch size for CPU
+        epochs = 1  # Just test a couple epochs
+        use_gpu = False  # CPU only for testing
         
     else:
         # Full training parameters
-        LEARNING_RATE = 0.0001  # Lower learning rate for transfer learning
-        BATCH_SIZE = 4  # Smaller batch size due to potentially limited data
-        EPOCHS = 50  # Fewer epochs needed for transfer learning
-        USE_GPU = True  # Use GPU for full training
+        learning_rate = 0.0001  # Lower learning rate for transfer learning
+        batch_size = 4  # Smaller batch size due to potentially limited data
+        epochs = 50  # Fewer epochs needed for transfer learning
+        use_gpu = True  # Use GPU for full training
     
     print("Starting Transfer Learning Training...")
-    print(f"Data Directory: {DATA_DIRECTORY}")
-    print(f"Pretrained Weights: {PRETRAINED_PATH}")
-    print(f"Learning Rate: {LEARNING_RATE}")
-    print(f"Batch Size: {BATCH_SIZE}")
-    print(f"Epochs: {EPOCHS}")
-    print(f"Use GPU: {USE_GPU}")
+    print(f"Data Directory: {data_directory}")
+    print(f"Pretrained Weights: {pretrained_path}")
+    print(f"Learning Rate: {learning_rate}")
+    print(f"Batch Size: {batch_size}")
+    print(f"epochs: {epochs}")
+    print(f"Use GPU: {use_gpu}")
     print(f"Test Mode: {TEST_MODE}")
     
     ## Start transfer learning training
     TrainTransferLearning(
-        data_directory=DATA_DIRECTORY,
-        pretrained_path=PRETRAINED_PATH,
-        LR=LEARNING_RATE,
-        Batchsize=BATCH_SIZE, 
-        Epoches=EPOCHS,
-        useGPU=USE_GPU,
+        data_directory=data_directory,
+        pretrained_path=pretrained_path,
+        LR=learning_rate,
+        batch_size=batch_size, 
+        Epoches=epochs,
+        useGPU=use_gpu,
         test_mode=TEST_MODE,
         max_test_batches=2,
         max_test_epochs=1
