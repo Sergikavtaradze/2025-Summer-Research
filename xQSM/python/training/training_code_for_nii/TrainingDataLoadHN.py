@@ -5,12 +5,18 @@ import torch
 import nibabel as nib
 from torch.utils import data
 import glob
+from functools import wraps
 
 
 class QSMDataSet(data.Dataset):
-    def __init__(self, root, transform=None, include_noise=True):
+    train_subjects=['sub-01', 'sub-02', 'sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08']
+    val_subjects=['sub-09', 'sub-10']
+    test_subjects=None
+    
+    def __init__(self, root, split_type='train', transform=None, include_noise=True):
         super(QSMDataSet, self).__init__()
         self.root = root
+        self.split_type = split_type
         self.transform = transform
         self.include_noise = include_noise
         
@@ -22,38 +28,80 @@ class QSMDataSet(data.Dataset):
         self.files = []
         self._scan_data_directory()
         
-        print(f"Found {len(self.files)} data pairs")
+        print(f"Found {len(self.files)} data pairs for {split_type} split")
+
+    @property
+    def current_subjects(self):
+        """Property decorator to get current split subjects"""
+        if self.split_type == 'train':
+            return self.train_subjects
+        elif self.split_type == 'val':
+            return self.val_subjects
+        elif self.split_type == 'test':
+            return self.test_subjects if self.test_subjects else []
+        else:
+            raise ValueError(f"Unknown split_type: {self.split_type}")
+
+    @classmethod
+    def get_train_subjects(cls):
+        """Class method decorator to get training subjects"""
+        return cls.train_subjects
+
+    @classmethod
+    def get_val_subjects(cls):
+        """Class method decorator to get validation subjects"""
+        return cls.val_subjects
+
+    @classmethod
+    def get_test_subjects(cls):
+        """Class method decorator to get test subjects"""
+        return cls.test_subjects if cls.test_subjects else []
+
+    @classmethod
+    def get_all_split_subjects(cls):
+        """Class method to get all subjects organized by split"""
+        return {
+            'train': cls.train_subjects,
+            'val': cls.val_subjects,
+            'test': cls.test_subjects if cls.test_subjects else []
+        }
 
     def _scan_data_directory(self):
-        """Scan the data directory to find all available subject/session combinations"""
-        # Pattern to find all input files
-        input_pattern = os.path.join(self.root, "sub-*/ses-*/qsm/*_unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz")
-        input_files = glob.glob(input_pattern)
-        
-        for input_file in input_files:
-            # Extract subject and session from filename
-            filename = os.path.basename(input_file)
-            # Parse sub-XX_ses-XX from filename
-            parts = filename.split('_')
-            if len(parts) >= 2:
-                sub_id = parts[0]  # sub-XX
-                ses_id = parts[1]  # ses-XX
-                
-                # Construct the corresponding target file path
-                target_filename = f"{sub_id}_{ses_id}_unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz"
-                target_file = os.path.join(os.path.dirname(input_file), target_filename)
-                
-                # Check if both files exist
-                if os.path.exists(input_file) and os.path.exists(target_file):
-                    self.files.append({
-                        "input": input_file,
-                        "target": target_file,
-                        "subject": sub_id,
-                        "session": ses_id,
-                        "name": f"{sub_id}_{ses_id}"
-                    })
-                else:
-                    print(f"Warning: Missing pair for {filename}")
+        """Scan the data directory for current split subjects only"""
+        current_subjects = self.current_subjects
+        if not current_subjects:
+            print(f"No subjects defined for {self.split_type} split")
+            return
+            
+        for subject in current_subjects:
+            # Create pattern for this specific subject
+            input_pattern = os.path.join(self.root, f"{subject}/ses-*/qsm/*_unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz")
+            input_files = glob.glob(input_pattern)
+            
+            for input_file in input_files:
+                # Extract subject and session from filename
+                filename = os.path.basename(input_file)
+                # Parse sub-XX_ses-XX from filename
+                parts = filename.split('_')
+                if len(parts) >= 2:
+                    sub_id = parts[0]  # sub-XX
+                    ses_id = parts[1]  # ses-XX
+                    
+                    # Construct the corresponding target file path
+                    target_filename = f"{sub_id}_{ses_id}_unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz"
+                    target_file = os.path.join(os.path.dirname(input_file), target_filename)
+                    
+                    # Check if both files exist
+                    if os.path.exists(input_file) and os.path.exists(target_file):
+                        self.files.append({
+                            "input": input_file,
+                            "target": target_file,
+                            "subject": sub_id,
+                            "session": ses_id,
+                            "name": f"{sub_id}_{ses_id}"
+                        })
+                    else:
+                        print(f"Warning: Missing pair for {filename}")
 
     def __len__(self):
         return len(self.files)
@@ -106,7 +154,6 @@ class QSMDataSet(data.Dataset):
         """Get list of all unique sessions"""
         return list(set([f["session"] for f in self.files]))
 
-
 def AddNoise(ins, SNR):
     """Add noise to input tensor based on SNR"""
     sigPower = SigPower(ins)
@@ -127,26 +174,34 @@ if __name__ == '__main__':
     # Update this path to your QSM data directory
     DATA_DIRECTORY = '/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data'
     BATCH_SIZE = 2
-    
-    # Create dataset
-    dataset = QSMDataSet(DATA_DIRECTORY, include_noise=True)
-    print(f"Dataset length: {dataset.__len__()}")
-    
-    # Print some dataset info
-    print("Available subjects:", dataset.get_all_subjects())
-    print("Available sessions:", dataset.get_all_sessions())
-    
-    # Create dataloader
-    dataloader = data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
-    
-    # Test loading a few batches
-    for i, (inputs, targets, names) in enumerate(dataloader):
-        if i < 3:  # Test first 3 batches
-            print(f"\nBatch {i+1}:")
-            print(f"Names: {names}")
-            print(f"Input shape: {inputs.shape}")
-            print(f"Target shape: {targets.shape}")
-            print(f"Input range: [{inputs.min():.4f}, {inputs.max():.4f}]")
-            print(f"Target range: [{targets.min():.4f}, {targets.max():.4f}]")
-        else:
-            break
+
+    try:
+        # Create subset datasets
+        train_dataset = QSMDataSet(DATA_DIRECTORY, split_type='train')
+        val_dataset = QSMDataSet(DATA_DIRECTORY, split_type='val')
+        
+        # Create dataloaders
+        trainloader = data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+        valloader = data.DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
+        
+        print(f"\nCreated dataloaders:")
+        print(f"  Train: {len(trainloader)} batches")
+        print(f"  Val: {len(valloader)} batches")
+        
+        # Test loading a few batches from each split
+        print(f"\nTesting train dataloader:")
+        for i, (inputs, targets, names) in enumerate(trainloader):
+            if i < 2:  # Test first 2 batches
+                print(f"  Batch {i+1}: {names} | Shapes: {inputs.shape}, {targets.shape}")
+            else:
+                break
+        
+        print(f"\nTesting validation dataloader:")
+        for i, (inputs, targets, names) in enumerate(valloader):
+            if i < 2:  # Test first 2 batches
+                print(f"  Batch {i+1}: {names} | Shapes: {inputs.shape}, {targets.shape}")
+            else:
+                break
+                
+    except ValueError as e:
+        print(f"Error: {e}")
