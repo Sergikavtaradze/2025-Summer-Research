@@ -141,12 +141,12 @@ ini_chNo = 32                  # Initial number of channels
 
 ## Transfer Learning Strategy
 
-### Frozen Layers (Feature Extractors):
+### Frozen Layers:
 - `InputOct`: Initial octave convolution layer
 - `EncodeConv1`: First encoding layer
 - `EncodeConv2`: Second encoding layer
 
-### Trainable Layers (Domain Adaptation):
+### Trainable Layers:
 - `MidConv1`: Middle processing layer
 - `DecodeConv1`: First decoding layer  
 - `DecodeConv2`: Second decoding layer
@@ -191,9 +191,7 @@ Each epoch:
 - Model summary files (if generated)
 - Dataset verification logs
 
-## Troubleshooting
-
-### Common Issues:
+## Common Issues:
 
 **1. CUDA Out of Memory**
 ```python
@@ -209,10 +207,10 @@ USE_GPU = False
 
 **2. Dataset Not Found**
 ```bash
-# Check data directory path
+#Check data directory path
 ls /path/to/your/QSM_data
 
-# Verify file naming convention matches expected pattern
+#Verify file naming convention matches expected pattern
 ```
 
 **3. Model Loading Errors**
@@ -245,10 +243,3 @@ For questions about:
 - **Performance**: Use model summary and monitoring tools
 
 Happy training! 🚀
-```
-
-<!-- This generates analysis including:
-- Parameter distribution across layers
-- Memory requirements
-- Freezing impact on training speed
-- Recommendations for transfer learning -->
