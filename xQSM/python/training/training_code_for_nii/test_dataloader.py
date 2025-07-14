@@ -37,7 +37,7 @@ def test_basic_functionality():
     print("TESTING BASIC DATALOADER FUNCTIONALITY")
     print("="*60)
     
-    DATA_DIRECTORY = '/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data'
+    DATA_DIRECTORY = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'
     
     try:
         # Test dataset creation
@@ -83,7 +83,7 @@ def test_dataloader_batching():
     print("TESTING DATALOADER BATCHING")
     print("="*60)
     
-    DATA_DIRECTORY = '/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data'
+    DATA_DIRECTORY = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'
     BATCH_SIZE = 2
     
     try:
@@ -127,7 +127,7 @@ def test_noise_augmentation():
     print("TESTING NOISE AUGMENTATION")
     print("="*60)
     
-    DATA_DIRECTORY = '/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data'
+    DATA_DIRECTORY = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'
     
     try:
         # Test without noise
@@ -172,7 +172,7 @@ def test_performance():
     print("TESTING LOADING PERFORMANCE")
     print("="*60)
     
-    DATA_DIRECTORY = '/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data'
+    DATA_DIRECTORY = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'
     BATCH_SIZE = 4
     
     try:
@@ -214,7 +214,7 @@ def test_file_paths():
     print("TESTING FILE PATHS")
     print("="*60)
     
-    DATA_DIRECTORY = '/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data'
+    DATA_DIRECTORY = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'
     
     try:
         dataset = QSMDataSet(DATA_DIRECTORY, include_noise=False)
@@ -270,7 +270,7 @@ def test_data_consistency():
     print("TESTING DATA CONSISTENCY")
     print("="*60)
     
-    DATA_DIRECTORY = '/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data'
+    DATA_DIRECTORY = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'
     
     try:
         dataset = QSMDataSet(DATA_DIRECTORY, include_noise=False)

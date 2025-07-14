@@ -313,13 +313,13 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, Batchs
 
 if __name__ == '__main__':
     # Configuration
-    DATA_DIRECTORY = '/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data'  # Update this path
-    PRETRAINED_PATH = './ChiNet_Latest.pth'  # Path to pretrained weights (optional)
+    DATA_DIRECTORY = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'  # Relative path to data directory
+    PRETRAINED_PATH = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/HN_Checkpoints/xQSM_invivo.pth'  # Path to pretrained weights (optional)
     
     # Training parameters - adjusted for transfer learning
     LEARNING_RATE = 0.0001  # Lower learning rate for transfer learning
-    BATCH_SIZE = 4  # Smaller batch size due to potentially limited data
-    EPOCHS = 50  # Fewer epochs needed for transfer learning
+    BATCH_SIZE = 1  # Smaller batch size due to limited data and GPU VRAM
+    EPOCHS = 50  # Fewer epochs for transfer learning
     
     print("Starting Transfer Learning Training...")
     print(f"Data Directory: {DATA_DIRECTORY}")
