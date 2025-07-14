@@ -11,50 +11,6 @@ from TrainingDataLoadHN import QSMDataSet
 from torch.utils import data
 from torch.cuda.amp import autocast, GradScaler # adding mixed precision training
 
-#########  Section 1: DataSet Load #############
-def DataLoad(data_directory, batch_size=8, test_split=0.2):
-    """
-    Load the head and neck QSM dataset
-    
-    Args:
-        data_directory (str): Path to QSM data directory
-        batch_size (int): Batch size for training
-        test_split (float): Fraction of data to use for validation
-    """
-    # Create full dataset
-    full_dataset = QSMDataSet(data_directory, include_noise=True)
-    print(f'Total dataset length: {len(full_dataset)}')
-    
-    # Split into train and validation
-    dataset_size = len(full_dataset)
-    val_size = int(test_split * dataset_size)
-    train_size = dataset_size - val_size
-    
-    train_dataset, val_dataset = data.random_split(
-        full_dataset, [train_size, val_size],
-        generator=torch.Generator().manual_seed(42)  # For reproducibility
-    )
-    
-    print(f'Training samples: {len(train_dataset)}')
-    print(f'Validation samples: {len(val_dataset)}')
-    
-    # Create dataloaders
-    trainloader = data.DataLoader(
-        train_dataset, 
-        batch_size=batch_size, 
-        shuffle=True, 
-        drop_last=True
-    )
-    
-    valloader = data.DataLoader(
-        val_dataset, 
-        batch_size=batch_size, 
-        shuffle=False, 
-        drop_last=False
-    )
-    
-    return trainloader, valloader
-
 def freeze_encoding_layers(model):
     """
     Freeze the encoding layers of the xQSM model for transfer learning
@@ -126,13 +82,13 @@ def load_pretrained_weights(model, pretrained_path):
     
     return model
 
-def validate_model(model, valloader, criterion, device, test_mode=False, max_batches=None):
+def validate_model(model, val_loader, criterion, device, test_mode=False, max_batches=None):
     """
     Validate the model on validation set
     
     Args:
         model: xQSM model
-        valloader: Validation dataloader
+        val_loader: Validation dataloader
         criterion: Loss function
         device: Device to run on
         test_mode: If True, limit validation for testing
@@ -146,7 +102,7 @@ def validate_model(model, valloader, criterion, device, test_mode=False, max_bat
     num_batches = 0
     
     with torch.no_grad():
-        for inputs, targets, names in valloader:
+        for inputs, targets, names in val_loader:
             inputs = inputs.to(device)
             targets = targets.to(device)
             
@@ -195,7 +151,7 @@ def SaveNet(model, epoch, save_dir='./transfer_learning_checkpoints', best_loss=
         torch.save(model.state_dict(), best_path)
         print(f'New best model saved with validation loss: {best_loss:.6f}')
 
-def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, Batchsize=8, 
+def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_size=8, 
                          Epoches=50, useGPU=True, save_dir='./transfer_learning_checkpoints',
                          test_mode=False, max_test_batches=3, max_test_epochs=2):
     """
@@ -221,6 +177,34 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, Batchs
         print('TRANSFER LEARNING TRAINING FOR HEAD AND NECK QSM')
     print('='*80)
     
+    # Data Loading
+
+    # Split into train and validation
+    train_dataset = QSMDataSet(data_directory, split_type='train')
+    val_dataset = QSMDataSet(data_directory, split_type='val')
+        
+    # Create dataloaders
+    train_loader = data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    
+    print(f'Training samples: {len(train_dataset)}')
+    print(f'Validation samples: {len(val_dataset)}')
+    
+    # Create dataloaders
+    train_loader = data.DataLoader(
+        train_dataset, 
+        batch_size=batch_size, 
+        shuffle=True, 
+        drop_last=True
+    )
+    
+    val_loader = data.DataLoader(
+        val_dataset, 
+        batch_size=batch_size, 
+        shuffle=False, 
+        drop_last=False
+    )
+
     # Create model
     Chi_Net = xQSM(EncodingDepth=2, ini_chNo=32)  # Using same config as original
     
@@ -232,10 +216,6 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, Batchs
     
     # Set model to training mode
     Chi_Net.train()
-    
-    print('\nDataLoader setting begins')
-    trainloader, valloader = DataLoad(data_directory, Batchsize)
-    print('Dataloader setting end')
 
     print('\nTraining Begins')
     criterion = nn.MSELoss(reduction='mean')  # Using mean for better comparison
@@ -285,14 +265,14 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, Batchs
         num_train_batches = 0
         
         # Get total number of batches for progress tracking
-        total_batches = len(trainloader)
+        total_batches = len(train_loader)
         if test_mode:
             total_batches = min(total_batches, max_test_batches)
         print(f"Total batches to process this epoch: {total_batches}")
         
         scaler = GradScaler()
 
-        for i, (inputs, targets, names) in enumerate(trainloader):
+        for i, (inputs, targets, names) in enumerate(train_loader):
             print(f"\n--- BATCH {i + 1}/{total_batches} (Epoch {epoch}) ---")
             
             # Print detailed input information
@@ -372,7 +352,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, Batchs
         
         print(f"\nSTARTING VALIDATION PHASE...")
         # Validation phase
-        val_loss = validate_model(Chi_Net, valloader, criterion, device, 
+        val_loss = validate_model(Chi_Net, val_loader, criterion, device, 
                                 test_mode=test_mode, max_batches=max_test_batches)
         print(f"Validation complete - Loss: {val_loss:.6f}")
         
