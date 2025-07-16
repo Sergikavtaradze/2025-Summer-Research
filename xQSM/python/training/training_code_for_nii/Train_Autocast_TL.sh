@@ -7,16 +7,20 @@
  
 # Set the job name, output file paths
 #$ -N Endonasal_Test_Feb12_80epoch_best_1prompt
-#$ -o /cluster/project7/SAMed/samed_codes/3DSAM-adapter/3DSAM-adapter/job_info
-#$ -e /cluster/project7/SAMed/samed_codes/3DSAM-adapter/3DSAM-adapter/job_info
-#$ -wd /home/mobislam
+#$ -o /Users/sirbucks/Documents/clusters/medphys_cluster_storage/xQSM/python/job_info
+#$ -e /Users/sirbucks/Documents/clusters/medphys_cluster_storage/xQSM/python/job_info
+#$ -wd /home/zcemska
  
 # Activate the virtual environment
 # Initialize Conda
 # source /share/apps/source_files/python/python-3.9.16.source
 # Activate the specific environment
-eval "$(/SAN/medic/CARES/mobarak/venvs/anaconda3/bin/conda shell.bash hook)"
-conda activate 3DSAM-adapter
+
+##################################################################################
+# Need to change the eval command to the correct path for the conda installation #
+##################################################################################
+# eval "$(/SAN/medic/CARES/mobarak/venvs/anaconda3/bin/conda shell.bash hook)"
+conda activate QSM
  
 ########################################################
 ## CUDA Environment Setup
@@ -60,13 +64,9 @@ export CUDA_LAUNCH_BLOCKING=1
  
  
 # Navigate to the directory containing the scripts
-cd /cluster/project7/SAMed/samed_codes/3DSAM-adapter/3DSAM-adapter
+cd /Scratch/DeepLearningQSM/2025-Summer-Research/xQSM/python/training/training_code_for_nii
  
 python3 Train_Autocast_TL.py -bs 3 -ep 50 -lr float(4e-4) \
---data_directory "/cluster/project7/SAMed/datasets/endonasal_mri_batch2" \
---pretrained_path "/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/HN_Checkpoints/xQSM_invivo.pth" \
---snapshot_path "/cluster/project7/SAMed/samed_codes/3DSAM-adapter/3DSAM-adapter/ckpt/endonasal/" 
-
-#data_directory = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'  # Relative path to data directory
-#pretrained_path = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/HN_Checkpoints/xQSM_invivo.pth'  # Path to pretrained weights (optional)
-    
+--data_directory "/Scratch/DeepLearningQSM/QSM_data" \
+--pretrained_path "/Scratch/DeepLearningQSM/HN_Checkpoints/xQSM_invivo.pth" \
+--snapshot_path "/Scratch/DeepLearningQSM/xQSM/python/training/ckpt/" 
