@@ -1,17 +1,15 @@
 #!/bin/bash -l
  
 #specify the required resources
-#$-q Arya, Bran, Bronn, Brienne, Catelyn, Cersei, Daario, Daenerys, Davos, Eddard, Gendry, Jaime, Jaqen, Jeor, Joffrey, Jorah, arya, bran, bronn, brienne, catelyn, cersei, daario, daenerys, davos, eddard, gendry, jaime, jaqen, jeor, joffrey, jorah, Ellaria, Margaery, Gilly, Jon, ellaria, gilly, jon
-# RAM
-#$ -l mem=16G
-# GPU
+#$ -l tmem=16G
 #$ -l gpu=1
+#$ -l gpu_type=a6000|P100
  
 # Set the job name, output file paths
 #$ -N xQSM_autocast_TL_bs4_ep50_lr4e-4
-#$ -o /2025-Summer-Research/xQSM/python/job_info
-#$ -e /2025-Summer-Research/xQSM/python/job_info
-#$ -wd /home/zcemska/Scratch/DeepLearningQSM
+#$ -o /cluster/project7/SAMed/samed_codes/xQSM/2025-Summer-Research/xQSM/python/job_info
+#$ -e /cluster/project7/SAMed/samed_codes/xQSM/2025-Summer-Research/xQSM/python/job_info
+#$ -wd /home/mobislam
  
 # Activate the virtual environment
 # Initialize Conda
@@ -21,7 +19,8 @@
 ##################################################################################
 # Need to change the command to the correct path for the conda installation #
 ##################################################################################
-source /2025-Summer-Research/QSM/bin/activate
+eval "$(/SAN/medic/CARES/mobarak/venvs/anaconda3/bin/conda shell.bash hook)"
+conda activate 3DSAM-adapter
  
 ########################################################
 ## CUDA Environment Setup
@@ -65,9 +64,9 @@ export CUDA_LAUNCH_BLOCKING=1
  
  
 # Navigate to the directory containing the scripts
-cd /2025-Summer-Research/xQSM/python/training/training_code_for_nii
+cd /Scratch/DeepLearningQSM/2025-Summer-Research/xQSM/python/training/training_code_for_nii
  
 python3 Train_Autocast_TL.py -bs 4 -ep 50 -lr 4e-4 \
---data_directory "/QSM_data" \
---pretrained_path "/HN_Checkpoints/xQSM_invivo.pth" \
---snapshot_path "/xQSM/python/training/ckpt/" 
+--data_directory "/cluster/project7/SAMed/samed_codes/xQSM/QSM_data" \
+--pretrained_path "/Scratch/DeepLearningQSM/HN_Checkpoints/xQSM_invivo.pth" \
+--snapshot_path "/cluster/project7/SAMed/samed_codes/xQSM/2025-Summer-Research/xQSM/python/training/ckpt/" 
