@@ -6,9 +6,9 @@
 #$ -l gpu_type=a6000|P100
  
 # Set the job name, output file paths
-#$ -N xQSM_autocast_TL_bs4_ep50_lr4e-4
-#$ -o /cluster/project7/SAMed/samed_codes/xQSM/2025-Summer-Research/xQSM/python/job_info
-#$ -e /cluster/project7/SAMed/samed_codes/xQSM/2025-Summer-Research/xQSM/python/job_info
+#$ -N mob_Train_xQSM_autocast_TL_bs4_ep50_lr4e-4
+#$ -o /cluster/project7/SAMed/samed_codes/xQSM/2025-Summer-Research/xQSM/python/job_info_mob
+#$ -e /cluster/project7/SAMed/samed_codes/xQSM/2025-Summer-Research/xQSM/python/job_info_mob
 #$ -wd /home/mobislam
  
 # Activate the virtual environment
@@ -64,9 +64,9 @@ export CUDA_LAUNCH_BLOCKING=1
  
  
 # Navigate to the directory containing the scripts
-cd /Scratch/DeepLearningQSM/2025-Summer-Research/xQSM/python/training/training_code_for_nii
+cd /cluster/project7/SAMed/samed_codes/xQSM/2025-Summer-Research/xQSM/python/training/training_code_for_nii
  
 python3 Train_Autocast_TL.py -bs 4 -ep 50 -lr 4e-4 \
 --data_directory "/cluster/project7/SAMed/samed_codes/xQSM/QSM_data" \
---pretrained_path "/Scratch/DeepLearningQSM/HN_Checkpoints/xQSM_invivo.pth" \
+--pretrained_path "/cluster/project7/SAMed/samed_codes/xQSM/2025-Summer-Research/xQSM/Pretrained_Checkpoints/xQSM_invivo.pth" \
 --snapshot_path "/cluster/project7/SAMed/samed_codes/xQSM/2025-Summer-Research/xQSM/python/training/ckpt/" 
