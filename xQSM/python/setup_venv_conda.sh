@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#$ -N xQSM_venv_setup
+#$ -o /2025-Summer-Research/xQSM/python/job_info
+#$ -e /2025-Summer-Research/xQSM/python/job_info
+#$ -wd /home/zcemska/Scratch/DeepLearningQSM
+
 # Script to create a conda virtual environment for xQSM training
 ENV_NAME="QSM"
 PYTHON_VERSION="3.9"

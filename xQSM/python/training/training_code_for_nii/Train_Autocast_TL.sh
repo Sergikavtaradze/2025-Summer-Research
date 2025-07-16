@@ -7,9 +7,9 @@
  
 # Set the job name, output file paths
 #$ -N Endonasal_Test_Feb12_80epoch_best_1prompt
-#$ -o /Users/sirbucks/Documents/clusters/medphys_cluster_storage/xQSM/python/job_info
-#$ -e /Users/sirbucks/Documents/clusters/medphys_cluster_storage/xQSM/python/job_info
-#$ -wd /home/zcemska
+#$ -o /2025-Summer-Research/xQSM/python/job_info
+#$ -e /2025-Summer-Research/xQSM/python/job_info
+#$ -wd /home/zcemska/Scratch/DeepLearningQSM
  
 # Activate the virtual environment
 # Initialize Conda
