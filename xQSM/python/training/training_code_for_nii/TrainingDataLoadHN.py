@@ -27,8 +27,6 @@ class QSMDataSet(data.Dataset):
         # Find all available data files
         self.files = []
         self._scan_data_directory()
-        
-        print(f"Found {len(self.files)} data pairs for {split_type} split")
 
     @property
     def current_subjects(self):
@@ -70,7 +68,6 @@ class QSMDataSet(data.Dataset):
         """Scan the data directory for current split subjects only"""
         current_subjects = self.current_subjects
         if not current_subjects:
-            print(f"No subjects defined for {self.split_type} split")
             return
             
         for subject in current_subjects:
@@ -100,8 +97,6 @@ class QSMDataSet(data.Dataset):
                             "session": ses_id,
                             "name": f"{sub_id}_{ses_id}"
                         })
-                    else:
-                        print(f"Warning: Missing pair for {filename}")
 
     def __len__(self):
         return len(self.files)
@@ -184,24 +179,14 @@ if __name__ == '__main__':
         trainloader = data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
         valloader = data.DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
         
-        print(f"\nCreated dataloaders:")
-        print(f"  Train: {len(trainloader)} batches")
-        print(f"  Val: {len(valloader)} batches")
+        print(f"Dataset created: {len(train_dataset)} train, {len(val_dataset)} val samples")
         
-        # Test loading a few batches from each split
-        print(f"\nTesting train dataloader:")
-        for i, (inputs, targets, names) in enumerate(trainloader):
-            if i < 2:  # Test first 2 batches
-                print(f"  Batch {i+1}: {names} | Shapes: {inputs.shape}, {targets.shape}")
-            else:
-                break
+        # Test loading one batch from each split
+        train_batch = next(iter(trainloader))
+        val_batch = next(iter(valloader))
         
-        print(f"\nTesting validation dataloader:")
-        for i, (inputs, targets, names) in enumerate(valloader):
-            if i < 2:  # Test first 2 batches
-                print(f"  Batch {i+1}: {names} | Shapes: {inputs.shape}, {targets.shape}")
-            else:
-                break
+        print(f"Train batch: {train_batch[0].shape}, Val batch: {val_batch[0].shape}")
+        print("Dataset loading test successful!")
                 
     except ValueError as e:
         print(f"Error: {e}")

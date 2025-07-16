@@ -183,7 +183,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_
 
     criterion = nn.MSELoss(reduction='mean')
 
-    # Only optimize parameters that require gradients (unfrozen layers)
+    # Only optimize unfrozen layers
     trainable_params = [p for p in Chi_Net.parameters() if p.requires_grad]
     optimizer = optim.Adam(trainable_params, lr=LR)
 
