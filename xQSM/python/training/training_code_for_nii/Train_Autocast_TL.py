@@ -10,6 +10,7 @@ from xQSM import *
 from TrainingDataLoadHN import QSMDataSet
 from torch.utils import data
 from torch.cuda.amp import autocast, GradScaler # adding mixed precision training
+import argparse
 
 def freeze_encoding_layers(model):
     """
@@ -106,14 +107,14 @@ def validate_model(model, val_loader, criterion, device, test_mode=False, max_ba
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
     return avg_loss
 
-def SaveNet(model, epoch, save_dir='./transfer_learning_checkpoints', best_loss=None, test_mode=False):
+def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', best_loss=None, test_mode=False):
     """
     Save network checkpoints
     
     Args:
         model: Model to save
         epoch: Current epoch
-        save_dir: Directory to save checkpoints
+        snapshot_path: Directory to save checkpoints
         best_loss: Best validation loss (if this is the best model)
         test_mode: If True, skip saving in test mode
     """
@@ -121,23 +122,23 @@ def SaveNet(model, epoch, save_dir='./transfer_learning_checkpoints', best_loss=
         # No saving in test mode
         return
         
-    os.makedirs(save_dir, exist_ok=True)
+    os.makedirs(snapshot_path, exist_ok=True)
     
     # Always save latest checkpoint
-    latest_path = os.path.join(save_dir, 'xQSM_TransferLearning_Latest.pth')
+    latest_path = os.path.join(snapshot_path, 'xQSM_TransferLearning_Latest.pth')
     torch.save(model.state_dict(), latest_path)
     
     # Save epoch-specific checkpoint
-    epoch_path = os.path.join(save_dir, f'xQSM_TransferLearning_epoch_{epoch}.pth')
+    epoch_path = os.path.join(snapshot_path, f'xQSM_TransferLearning_epoch_{epoch}.pth')
     torch.save(model.state_dict(), epoch_path)
     
     # Save best model if specified
     if best_loss is not None:
-        best_path = os.path.join(save_dir, 'xQSM_TransferLearning_Best.pth')
+        best_path = os.path.join(snapshot_path, 'xQSM_TransferLearning_Best.pth')
         torch.save(model.state_dict(), best_path)
 
 def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_size=8, 
-                         Epoches=50, useGPU=True, save_dir='./transfer_learning_checkpoints',
+                         Epoches=50, useGPU=True, snapshot_path='./transfer_learning_checkpoints',
                          test_mode=False, max_test_batches=3, max_test_epochs=2):
     """
     Train xQSM model with transfer learning approach
@@ -149,7 +150,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_
         Batchsize: Batch size
         Epoches: Number of epochs
         useGPU: Whether to use GPU
-        save_dir: Directory to save checkpoints
+        snapshot_path: Directory to save checkpoints
         test_mode: If True, run in test mode with early termination
         max_test_batches: Maximum batches per epoch in test mode
         max_test_epochs: Maximum epochs in test mode
@@ -272,14 +273,14 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_
         # Save checkpoints periodically
         if epoch % 10 == 0 and not test_mode:
             print(f"  → Checkpoint saved (epoch {epoch})")
-            SaveNet(Chi_Net, epoch, save_dir, test_mode=test_mode)
+            SaveNet(Chi_Net, epoch, snapshot_path, test_mode=test_mode)
         
         # Save best model
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             best_epoch = epoch
             if not test_mode:
-                SaveNet(Chi_Net, epoch, save_dir, best_val_loss, test_mode=test_mode)
+                SaveNet(Chi_Net, epoch, snapshot_path, best_val_loss, test_mode=test_mode)
             print(f"New best model! Val: {best_val_loss:.6f} (epoch {best_epoch})")
         
         # Early termination for test mode
@@ -294,8 +295,8 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_
     print(f'Total training time: {total_time:.0f}s ({total_time/60:.1f}min)')
     
     if not test_mode:
-        SaveNet(Chi_Net, Epoches, save_dir)
-        print(f"Final model saved to: {save_dir}")
+        SaveNet(Chi_Net, Epoches, snapshot_path)
+        print(f"Final model saved to: {snapshot_path}")
     print('='*80)
     
     if test_mode:
@@ -303,8 +304,41 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_
 
 if __name__ == '__main__':
     # Configuration
-    data_directory = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'  # Relative path to data directory
-    pretrained_path = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/HN_Checkpoints/xQSM_invivo.pth'  # Path to pretrained weights (optional)
+    
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument("--data_directory", required=True, type=str)
+    parser.add_argument("--pretrained_path", required=True, type=str)
+    parser.add_argument("--snapshot_path", required=True, type=str)
+
+    parser.add_argument("-lr", "--learning_rate", default=4e-4, type=float)
+    parser.add_argument("-bs", "--batch_size", default=1, type=int)
+    parser.add_argument("-ep", "--epochs", default=50, type=int)
+    parser.add_argument("--test_mode", action="store_true", help="Default is False, Run in test mode,")
+    parser.add_argument("--use_gpu", action="store_true", help="Default is False, Use GPU for training,")
+    
+    #parser.add_argument("--num_worker", default=6, type=int)
+    #parser.add_argument("-tolerance", default=5, type=int)
+
+    args = parser.parse_args()
+
+    # Data parameters
+    data_directory = args.data_directory
+    pretrained_path = args.pretrained_path
+    snapshot_path = args.snapshot_path
+    
+    # Training parameters
+    batch_size = args.batch_size
+    epochs = args.epochs
+    learning_rate = args.learning_rate
+
+    # Training mode
+    test_mode = args.test_mode
+    use_gpu = args.use_gpu
+    
+
+    #data_directory = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'  # Relative path to data directory
+    #pretrained_path = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/HN_Checkpoints/xQSM_invivo.pth'  # Path to pretrained weights (optional)
     
     # Test mode parameters
     test_mode = False  # Set to True for CPU testing, False for full training
@@ -323,15 +357,15 @@ if __name__ == '__main__':
         
         # Test parameters
         learning_rate = 0.001  # Higher LR for quick testing
-        batch_size = 1  # Small batch size for CPU
-        epochs = 1  # Just test a couple epochs
+        batch_size = 3  # Small batch size for CPU
+        epochs = 2  # Just test a couple epochs
         use_gpu = False  # CPU only for testing
         
     else:
         # Full training parameters
-        learning_rate = 0.0001  # Lower learning rate for transfer learning
-        batch_size = 4  # Smaller batch size due to potentially limited data
-        epochs = 50  # Fewer epochs needed for transfer learning
+        # learning_rate = 0.0001  # Lower learning rate for transfer learning
+        # batch_size = 4  # Smaller batch size due to potentially limited data
+        # epochs = 50  # Fewer epochs needed for transfer learning
         use_gpu = True  # Use GPU for full training
     
     print("Starting Transfer Learning Training...")
@@ -351,7 +385,6 @@ if __name__ == '__main__':
         batch_size=batch_size, 
         Epoches=epochs,
         useGPU=use_gpu,
+        snapshot_path=snapshot_path,
         test_mode=test_mode,
-        max_test_batches=2,
-        max_test_epochs=1
     ) 
