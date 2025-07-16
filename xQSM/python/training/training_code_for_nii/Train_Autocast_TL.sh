@@ -1,12 +1,15 @@
 #!/bin/bash -l
  
 #specify the required resources
-#$ -l tmem=24G
+#$-q Arya, Bran, Bronn, Brienne, Catelyn, Cersei, Daario, Daenerys, Davos, Eddard, Gendry, Jaime, Jaqen, Jeor, Joffrey, Jorah, arya, bran, bronn, brienne, catelyn, cersei, daario, daenerys, davos, eddard, gendry, jaime, jaqen, jeor, joffrey, jorah, Ellaria, Margaery, Gilly, Jon, ellaria, gilly, jon
+
+# RAM
+#$ -l mem=16G
+# GPU
 #$ -l gpu=1
-#$ -l gpu_type=a6000
  
 # Set the job name, output file paths
-#$ -N Endonasal_Test_Feb12_80epoch_best_1prompt
+#$ -N xQSM_autocast_TL_bs4_ep50_lr4e-4
 #$ -o /2025-Summer-Research/xQSM/python/job_info
 #$ -e /2025-Summer-Research/xQSM/python/job_info
 #$ -wd /home/zcemska/Scratch/DeepLearningQSM
@@ -17,10 +20,9 @@
 # Activate the specific environment
 
 ##################################################################################
-# Need to change the eval command to the correct path for the conda installation #
+# Need to change the command to the correct path for the conda installation #
 ##################################################################################
-# eval "$(/SAN/medic/CARES/mobarak/venvs/anaconda3/bin/conda shell.bash hook)"
-conda activate QSM
+source /2025-Summer-Research/QSM/bin/activate
  
 ########################################################
 ## CUDA Environment Setup
@@ -66,7 +68,7 @@ export CUDA_LAUNCH_BLOCKING=1
 # Navigate to the directory containing the scripts
 cd /Scratch/DeepLearningQSM/2025-Summer-Research/xQSM/python/training/training_code_for_nii
  
-python3 Train_Autocast_TL.py -bs 3 -ep 50 -lr float(4e-4) \
+python3 Train_Autocast_TL.py -bs 4 -ep 50 -lr 4e-4 \
 --data_directory "/Scratch/DeepLearningQSM/QSM_data" \
 --pretrained_path "/Scratch/DeepLearningQSM/HN_Checkpoints/xQSM_invivo.pth" \
 --snapshot_path "/Scratch/DeepLearningQSM/xQSM/python/training/ckpt/" 
