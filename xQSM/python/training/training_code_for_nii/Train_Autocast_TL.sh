@@ -9,8 +9,8 @@
  
 # Set the job name, output file paths
 #$ -N xQSM_autocast_TL_bs4_ep50_lr4e-4
-#$ -o /2025-Summer-Research/xQSM/python/job_info
-#$ -e /2025-Summer-Research/xQSM/python/job_info
+#$ -o /home/zcemska/Scratch/DeepLearningQSM/2025-Summer-Research/xQSM/python/job_info
+#$ -e /home/zcemska/Scratch/DeepLearningQSM/2025-Summer-Research/xQSM/python/job_info
 #$ -wd /home/zcemska/Scratch/DeepLearningQSM
  
 # Activate the virtual environment
@@ -21,7 +21,7 @@
 ##################################################################################
 # Need to change the command to the correct path for the conda installation #
 ##################################################################################
-source /2025-Summer-Research/QSM/bin/activate
+source /home/zcemska/Scratch/DeepLearningQSM/2025-Summer-Research/QSM/bin/activate
  
 ########################################################
 ## CUDA Environment Setup
@@ -65,9 +65,9 @@ export CUDA_LAUNCH_BLOCKING=1
  
  
 # Navigate to the directory containing the scripts
-cd /2025-Summer-Research/xQSM/python/training/training_code_for_nii
+cd 2025-Summer-Research/xQSM/python/training/training_code_for_nii
  
 python3 Train_Autocast_TL.py -bs 4 -ep 50 -lr 4e-4 \
---data_directory "/QSM_data" \
---pretrained_path "/HN_Checkpoints/xQSM_invivo.pth" \
---snapshot_path "/xQSM/python/training/ckpt/" 
+--data_directory "QSM_data" \
+--pretrained_path "HN_Checkpoints/xQSM_invivo.pth" \
+--snapshot_path "xQSM/python/training/ckpt/" 
