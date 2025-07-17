@@ -1,7 +1,7 @@
 #!/bin/bash -l
  
 #specify the required resources
-# -q Arya, Bran, Bronn, Brienne, Catelyn, Cersei, Daario, Daenerys, Davos, Eddard, Gendry, Jaime, Jaqen, Jeor, Joffrey, Jorah, arya, bran, bronn, brienne, catelyn, cersei, daario, daenerys, davos, eddard, gendry, jaime, jaqen, jeor, joffrey, jorah, Ellaria, Margaery, Gilly, Jon, ellaria, gilly, jon
+# -q Arya, Bran, Bronn, Brienne, Catelyn, Cersei, Daario, Daenerys, Davos, Eddard, Gendry, Jaime, Jaqen, Jeor, Joffrey, Jorah
 # RAM
 #$ -l mem=16G
 # GPU
