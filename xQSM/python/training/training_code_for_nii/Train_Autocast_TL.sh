@@ -69,5 +69,5 @@ cd 2025-Summer-Research/xQSM/python/training/training_code_for_nii
  
 python3 Train_Autocast_TL.py -bs 4 -ep 50 -lr 4e-4 \
 --data_directory "QSM_data" \
---pretrained_path "HN_Checkpoints/xQSM_invivo.pth" \
+--pretrained_path "xQSM/Pretrained_Checkpoints/xQSM_invivo.pth" \
 --snapshot_path "xQSM/python/training/ckpt/" 
