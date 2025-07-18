@@ -9,7 +9,7 @@ import os
 from xQSM import * 
 from TrainingDataLoadHN import QSMDataSet
 from torch.utils import data
-from torch.cuda.amp import autocast, GradScaler # adding mixed precision training
+from torch.amp import autocast, GradScaler # adding mixed precision training
 import argparse
 import warnings
 
@@ -92,7 +92,7 @@ def validate_model(model, val_loader, criterion, device):
             inputs = inputs.to(device)
             targets = targets.to(device)
             
-            with autocast():
+            with autocast('cuda'):
                 outputs = model(inputs)
                 loss = criterion(outputs, targets)
             
@@ -210,7 +210,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         epoch_train_loss = 0.0
         num_train_batches = 0
         
-        scaler = GradScaler()
+        scaler = GradScaler('cuda')
 
         for i, (inputs, targets, names) in enumerate(train_loader):
             # Move to device
@@ -221,7 +221,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
             optimizer.zero_grad()
             
             # forward pass with autocast
-            with autocast():                             
+            with autocast('cuda'):                             
                 outputs = Chi_Net(inputs)
                 loss = criterion(outputs, targets)
             
@@ -234,7 +234,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
             epoch_train_loss += loss.item()
             num_train_batches += 1
         
-        # Calculate average training loss
+        # Calculate average training loss (for printing)
         avg_train_loss = epoch_train_loss / num_train_batches
         
         # Validation phase

@@ -1,7 +1,7 @@
 #!/bin/bash -l
  
 #specify the required resources
-#$ -l tmem=32G
+#$ -l tmem=48G
 #$ -l gpu=1
 #$ -l gpu_type=a6000|P100|V100
  
