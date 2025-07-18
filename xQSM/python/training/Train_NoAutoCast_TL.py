@@ -111,7 +111,8 @@ def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', ckpt_
         best_loss: Best validation loss (if this is the best model)
     """
         
-    path = os.makedirs(os.path.join(snapshot_path, ckpt_folder), exist_ok=True)
+    path = os.path.join(snapshot_path, ckpt_folder)
+    os.makedirs(path, exist_ok=True)
     
     # Always save latest checkpoint
     latest_path = os.path.join(path, 'xQSM_TransferLearning_Latest.pth')
@@ -195,6 +196,19 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         device = torch.device("cpu")
         Chi_Net.to(device)
         print("Using CPU")
+
+    # Doing this after making sure the GPU is available, otherwise the folder will be created
+    # But the script will be interrupted by the error.
+    # When the script is re-run the folder will exist so the script will be interrupted
+    # Even though the ckpt_folder will not have stored anything.
+    
+    # Have to rename the ckpt_folder to a new name each time
+    full_checkpoint_path = os.path.join(snapshot_path, ckpt_folder)
+    if os.path.exists(full_checkpoint_path):
+        raise FileExistsError(f"Checkpoint folder already exists: {full_checkpoint_path}. Please use a different folder name.")
+    else:
+        os.makedirs(full_checkpoint_path, exist_ok=True)
+        print(f"Created checkpoint folder: {full_checkpoint_path}")
 
     print(f"Training for {Epoches} epochs...")
     
@@ -301,15 +315,6 @@ if __name__ == '__main__':
     # Architecture parameters
     encoding_depth = args.encoding_depth
     ini_chNo = args.ini_chNo
-    
-
-    # Have to rename the ckpt_folder to a new name each time
-    full_checkpoint_path = os.path.join(snapshot_path, ckpt_folder)
-    if os.path.exists(full_checkpoint_path):
-        raise FileExistsError(f"Checkpoint folder already exists: {full_checkpoint_path}. Please use a different folder name.")
-    else:
-        os.makedirs(full_checkpoint_path, exist_ok=True)
-        print(f"Created checkpoint folder: {full_checkpoint_path}")
 
     if encoding_depth != 2:
         warnings.warn("Encoding depth is not 2. Frozen encoding layers will have random initialization and no learning rate.")
