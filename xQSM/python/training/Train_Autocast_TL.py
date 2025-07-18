@@ -13,6 +13,8 @@ from torch.amp import autocast, GradScaler # adding mixed precision training
 import argparse
 import warnings
 
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+
 def freeze_encoding_layers(model):
     """
     Freeze the encoding layers of the xQSM model for transfer learning
