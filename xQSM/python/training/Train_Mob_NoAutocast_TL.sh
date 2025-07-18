@@ -65,7 +65,7 @@ export CUDA_LAUNCH_BLOCKING=1
 # Navigate to the directory containing the scripts
 cd /cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/python/training/training_code_for_nii
  
-python3 Train_NoAutoCast_TL.py -bs 4 -ep 50 -lr 4e-4 \
+python3 Train_NoAutoCast_TL.py -bs 32 -ep 100 -lr 4e-4 \
 --data_directory "/cluster/project7/SAMed/xQSM/QSM_data" \
 --pretrained_path "/cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/Pretrained_Checkpoints/xQSM_invivo.pth" \
 --snapshot_path "/cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/python/training/ckpt/" 
