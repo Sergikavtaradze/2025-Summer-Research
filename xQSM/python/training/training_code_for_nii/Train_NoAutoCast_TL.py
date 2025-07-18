@@ -10,6 +10,7 @@ from xQSM import *
 from TrainingDataLoadHN import QSMDataSet
 from torch.utils import data
 import argparse
+import warnings
 
 def freeze_encoding_layers(model):
     """
@@ -68,7 +69,7 @@ def load_pretrained_weights(model, pretrained_path):
     
     return model
 
-def validate_model(model, val_loader, criterion, device, test_mode=False, max_batches=None):
+def validate_model(model, val_loader, criterion, device):
     """
     Validate the model on validation set
     
@@ -77,8 +78,6 @@ def validate_model(model, val_loader, criterion, device, test_mode=False, max_ba
         val_loader: Validation dataloader
         criterion: Loss function
         device: Device to run on
-        test_mode: If True, limit validation for testing
-        max_batches: Maximum number of batches to validate (for testing)
     
     Returns:
         Average validation loss
@@ -97,15 +96,11 @@ def validate_model(model, val_loader, criterion, device, test_mode=False, max_ba
             
             total_loss += loss.item()
             num_batches += 1
-            
-            # Early termination for testing
-            if test_mode and max_batches and num_batches >= max_batches:
-                break
     
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
     return avg_loss
 
-def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', best_loss=None, test_mode=False):
+def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', best_loss=None):
     """
     Save network checkpoints
     
@@ -114,11 +109,7 @@ def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', best_
         epoch: Current epoch
         snapshot_path: Directory to save checkpoints
         best_loss: Best validation loss (if this is the best model)
-        test_mode: If True, skip saving in test mode
     """
-    if test_mode:
-        # No saving in test mode
-        return
         
     os.makedirs(snapshot_path, exist_ok=True)
     
@@ -135,29 +126,25 @@ def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', best_
         best_path = os.path.join(snapshot_path, 'xQSM_TransferLearning_Best.pth')
         torch.save(model.state_dict(), best_path)
 
-def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_size=8, 
-                         Epoches=50, useGPU=True, snapshot_path='./transfer_learning_checkpoints',
-                         test_mode=False, max_test_batches=3, max_test_epochs=2):
+def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2, ini_chNo=64, 
+                          LR=0.001, batch_size=32, Epoches=50, 
+                          useGPU=True, snapshot_path='./transfer_learning_checkpoints'):
     """
     Train xQSM model with transfer learning approach
     
     Args:
         data_directory: Path to head and neck QSM data
         pretrained_path: Path to pretrained model weights
+        encoding_depth: Depth of encoding layers
+        ini_chNo: Initial number of channels
         LR: Learning rate
         Batchsize: Batch size
         Epoches: Number of epochs
         useGPU: Whether to use GPU
         snapshot_path: Directory to save checkpoints
-        test_mode: If True, run in test mode with early termination
-        max_test_batches: Maximum batches per epoch in test mode
-        max_test_epochs: Maximum epochs in test mode
     """
     print('='*80)
-    if test_mode:
-        print('TRANSFER LEARNING TRAINING - TEST MODE')
-    else:
-        print('TRANSFER LEARNING TRAINING FOR HEAD AND NECK QSM')
+    print('TRANSFER LEARNING TRAINING FOR HEAD AND NECK QSM')
     print('='*80)
     
     # Data Loading
@@ -171,7 +158,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_
     val_loader = data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, drop_last=False)
 
     # Create model
-    Chi_Net = xQSM(EncodingDepth=2, ini_chNo=32)
+    Chi_Net = xQSM(EncodingDepth=encoding_depth, ini_chNo=ini_chNo)
     
     # Load pretrained weights if available
     Chi_Net = load_pretrained_weights(Chi_Net, pretrained_path)
@@ -188,16 +175,11 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_
     trainable_params = [p for p in Chi_Net.parameters() if p.requires_grad]
     optimizer = optim.Adam(trainable_params, lr=LR)
 
-    # More aggressive learning rate schedule for transfer learning
-    scheduler = LS.MultiStepLR(optimizer, milestones=[20, 35], gamma=0.1)
+    scheduler = LS.MultiStepLR(optimizer, milestones=[50, 80], gamma=0.1)
     
     # Track best validation loss
     best_val_loss = float('inf')
     best_epoch = 0
-    
-    # Limit epochs in test mode
-    if test_mode:
-        Epoches = min(Epoches, max_test_epochs)
     
     ## start the timer. 
     time_start = time.time()
@@ -240,17 +222,12 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_
             # Accumulate loss
             epoch_train_loss += loss.item()
             num_train_batches += 1
-            
-            # Early termination for testing
-            if test_mode and i >= max_test_batches - 1:
-                break
         
         # Calculate average training loss
         avg_train_loss = epoch_train_loss / num_train_batches
         
         # Validation phase
-        val_loss = validate_model(Chi_Net, val_loader, criterion, device, 
-                                test_mode=test_mode, max_batches=max_test_batches)
+        val_loss = validate_model(Chi_Net, val_loader, criterion, device)
         
         # Learning rate scheduler step
         old_lr = optimizer.param_groups[0]['lr']
@@ -265,22 +242,17 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_
         print(f'Epoch [{epoch:3d}/{Epoches}] train_loss: {avg_train_loss:.6f} | val_loss: {val_loss:.6f} | best_val_loss: {best_val_loss:.6f} (epoch {best_epoch}) | Time: {epoch_time:.0f}s')
         
         # Save checkpoints periodically
-        if epoch % 10 == 0 and not test_mode:
+        if epoch % 10 == 0:
             print(f"  → Checkpoint saved (epoch {epoch})")
-            SaveNet(Chi_Net, epoch, snapshot_path, test_mode=test_mode)
+            SaveNet(Chi_Net, epoch, snapshot_path)
         
         # Save best model
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             best_epoch = epoch
-            if not test_mode:
-                SaveNet(Chi_Net, epoch, snapshot_path, best_val_loss, test_mode=test_mode)
+            SaveNet(Chi_Net, epoch, snapshot_path, best_val_loss)
             print(f"New best model! Val: {best_val_loss:.6f} (epoch {best_epoch})")
-        
-        # Early termination for test mode
-        if test_mode and epoch >= max_test_epochs:
-            break
-            
+                    
     # Final summary
     total_time = time.time() - time_start
     print('='*80)
@@ -288,17 +260,12 @@ def TrainTransferLearning(data_directory, pretrained_path=None, LR=0.001, batch_
     print(f'Best validation loss: {best_val_loss:.6f} (achieved at epoch {best_epoch})')
     print(f'Total training time: {total_time:.0f}s ({total_time/60:.1f}min)')
     
-    if not test_mode:
-        SaveNet(Chi_Net, Epoches, snapshot_path)
-        print(f"Final model saved to: {snapshot_path}")
+    SaveNet(Chi_Net, Epoches, snapshot_path)
+    print(f"Final model saved to: {snapshot_path}")
     print('='*80)
     
-    if test_mode:
-        print("Test mode completed successfully - ready for full training")
-
 if __name__ == '__main__':
     # Configuration
-    
     parser = argparse.ArgumentParser()
     
     parser.add_argument("--data_directory", required=True, type=str)
@@ -306,10 +273,11 @@ if __name__ == '__main__':
     parser.add_argument("--snapshot_path", required=True, type=str)
 
     parser.add_argument("-lr", "--learning_rate", default=4e-4, type=float)
-    parser.add_argument("-bs", "--batch_size", default=1, type=int)
+    parser.add_argument("-bs", "--batch_size", default=32, type=int)
     parser.add_argument("-ep", "--epochs", default=50, type=int)
-    parser.add_argument("--test_mode", action="store_true", help="Default is False, Run in test mode,")
-    parser.add_argument("--use_gpu", action="store_true", help="Default is False, Use GPU for training,")
+    parser.add_argument("-ed", "--encoding_depth", default=2, type=int)
+    parser.add_argument("-ic", "--ini_chNo", default=64, type=int)
+    parser.add_argument("--use_gpu", action="store_false", help="Default is True, Use GPU for training,")
     
     #parser.add_argument("--num_worker", default=6, type=int)
     #parser.add_argument("-tolerance", default=5, type=int)
@@ -325,52 +293,37 @@ if __name__ == '__main__':
     batch_size = args.batch_size
     epochs = args.epochs
     learning_rate = args.learning_rate
-
-    # Training mode
-    test_mode = args.test_mode
     use_gpu = args.use_gpu
-    
-    if test_mode:
-        print("="*80)
-        print("RUNNING IN TEST MODE")
-        print("="*80)
-        print("This will:")
-        print("- Use CPU only")
-        print("- Run for 2 epochs maximum")
-        print("- Process 3 batches per epoch")
-        print("- Skip checkpoint saving")
-        print("- Verify everything works before full training")
-        print("="*80)
-        
-        # Test parameters
-        learning_rate = 0.001  # Higher LR for quick testing
-        batch_size = 3  # Small batch size for CPU
-        epochs = 2  # Just test a couple epochs
-        use_gpu = False  # CPU only for testing
-        
-    else:
-        # Full training parameters
-        use_gpu = True  # Use GPU for full training
-    
-    print("Starting Transfer Learning Training...")
+
+    # Architecture parameters
+    encoding_depth = args.encoding_depth
+    ini_chNo = args.ini_chNo
+
+    if encoding_depth != 2:
+        warnings.warn("Encoding depth is not 2. Frozen encoding layers will have random initialization and no learning rate.")
+    if ini_chNo != 64:
+        warnings.warn("Initial number of channels is not 64. Frozen encoding layers will have random initialization and no learning rate.")
+    if epochs != 100:
+        warnings.warn("Epochs is not 100. Change the LR_Scheduler for more/less epochs.")
+    if encoding_depth == 2 and ini_chNo == 64 and epochs == 100:
+        print("Starting Transfer Learning Training...")
+
     print(f"Data Directory: {data_directory}")
     print(f"Pretrained Weights: {pretrained_path}")
     print(f"Learning Rate: {learning_rate}")
     print(f"Batch Size: {batch_size}")
     print(f"epochs: {epochs}")
     print(f"Use GPU: {use_gpu}")
-    print(f"Test Mode: {test_mode}")
     
     ## Start transfer learning training
     TrainTransferLearning(
         data_directory=data_directory,
         pretrained_path=pretrained_path,
+        encoding_depth=encoding_depth,
+        ini_chNo=ini_chNo,
         LR=learning_rate,
         batch_size=batch_size, 
         Epoches=epochs,
         useGPU=use_gpu,
         snapshot_path=snapshot_path,
-        test_mode=test_mode,
-        max_test_batches=2,
-        max_test_epochs=1
     ) 
