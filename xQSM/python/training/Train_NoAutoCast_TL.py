@@ -100,7 +100,7 @@ def validate_model(model, val_loader, criterion, device):
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
     return avg_loss
 
-def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', best_loss=None):
+def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', ckpt_folder=None, best_loss=None):
     """
     Save network checkpoints
     
@@ -111,24 +111,24 @@ def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', best_
         best_loss: Best validation loss (if this is the best model)
     """
         
-    os.makedirs(snapshot_path, exist_ok=True)
+    path = os.makedirs(os.path.join(snapshot_path, ckpt_folder), exist_ok=True)
     
     # Always save latest checkpoint
-    latest_path = os.path.join(snapshot_path, 'xQSM_TransferLearning_Latest.pth')
+    latest_path = os.path.join(path, 'xQSM_TransferLearning_Latest.pth')
     torch.save(model.state_dict(), latest_path)
     
     # Save epoch-specific checkpoint
-    epoch_path = os.path.join(snapshot_path, f'xQSM_TransferLearning_epoch_{epoch}.pth')
-    torch.save(model.state_dict(), epoch_path)
+    # epoch_path = os.path.join(snapshot_path, f'xQSM_TransferLearning_epoch_{epoch}.pth')
+    # torch.save(model.state_dict(), epoch_path)
     
     # Save best model if specified
     if best_loss is not None:
-        best_path = os.path.join(snapshot_path, 'xQSM_TransferLearning_Best.pth')
+        best_path = os.path.join(path, 'xQSM_TransferLearning_Best.pth')
         torch.save(model.state_dict(), best_path)
 
 def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2, ini_chNo=64, 
-                          LR=0.001, batch_size=32, Epoches=50, 
-                          useGPU=True, snapshot_path='./transfer_learning_checkpoints'):
+                          LR=0.001, batch_size=32, Epoches=50, useGPU=True, 
+                          snapshot_path='./transfer_learning_checkpoints', ckpt_folder=None):
     """
     Train xQSM model with transfer learning approach
     
@@ -142,6 +142,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         Epoches: Number of epochs
         useGPU: Whether to use GPU
         snapshot_path: Directory to save checkpoints
+        ckpt_folder: Folder to save checkpoints
     """
     print('='*80)
     print('TRANSFER LEARNING TRAINING FOR HEAD AND NECK QSM')
@@ -242,15 +243,15 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         print(f'Epoch [{epoch:3d}/{Epoches}] train_loss: {avg_train_loss:.6f} | val_loss: {val_loss:.6f} | best_val_loss: {best_val_loss:.6f} (epoch {best_epoch}) | Time: {epoch_time:.0f}s')
         
         # Save checkpoints periodically
-        if epoch % 10 == 0:
-            print(f"  → Checkpoint saved (epoch {epoch})")
-            SaveNet(Chi_Net, epoch, snapshot_path)
+        # if epoch % 10 == 0:
+        #     print(f"  → Checkpoint saved (epoch {epoch})")
+        #     SaveNet(Chi_Net, epoch, snapshot_path)
         
         # Save best model
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             best_epoch = epoch
-            SaveNet(Chi_Net, epoch, snapshot_path, best_val_loss)
+            SaveNet(Chi_Net, epoch, snapshot_path, ckpt_folder, best_val_loss)
             print(f"New best model! Val: {best_val_loss:.6f} (epoch {best_epoch})")
                     
     # Final summary
@@ -260,7 +261,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
     print(f'Best validation loss: {best_val_loss:.6f} (achieved at epoch {best_epoch})')
     print(f'Total training time: {total_time:.0f}s ({total_time/60:.1f}min)')
     
-    SaveNet(Chi_Net, Epoches, snapshot_path)
+    SaveNet(Chi_Net, Epoches, snapshot_path, ckpt_folder)
     print(f"Final model saved to: {snapshot_path}")
     print('='*80)
     
@@ -268,26 +269,28 @@ if __name__ == '__main__':
     # Configuration
     parser = argparse.ArgumentParser()
     
+    # Path parameters
     parser.add_argument("--data_directory", required=True, type=str)
     parser.add_argument("--pretrained_path", required=True, type=str)
     parser.add_argument("--snapshot_path", required=True, type=str)
+    parser.add_argument("--ckpt_folder", required=True, type=str)
 
+    # Parameters for training
     parser.add_argument("-lr", "--learning_rate", default=4e-4, type=float)
     parser.add_argument("-bs", "--batch_size", default=32, type=int)
     parser.add_argument("-ep", "--epochs", default=50, type=int)
-    parser.add_argument("-ed", "--encoding_depth", default=2, type=int)
-    parser.add_argument("-ic", "--ini_chNo", default=64, type=int)
     parser.add_argument("--use_gpu", action="store_false", help="Default is True, Use GPU for training,")
     
-    #parser.add_argument("--num_worker", default=6, type=int)
-    #parser.add_argument("-tolerance", default=5, type=int)
-
+    # Architecture parameters
+    parser.add_argument("-ed", "--encoding_depth", default=2, type=int)
+    parser.add_argument("-ic", "--ini_chNo", default=64, type=int)
     args = parser.parse_args()
 
-    # Data parameters
+    # Path parameters
     data_directory = args.data_directory
     pretrained_path = args.pretrained_path
     snapshot_path = args.snapshot_path
+    ckpt_folder = args.ckpt_folder
     
     # Training parameters
     batch_size = args.batch_size
@@ -298,6 +301,15 @@ if __name__ == '__main__':
     # Architecture parameters
     encoding_depth = args.encoding_depth
     ini_chNo = args.ini_chNo
+    
+
+    # Have to rename the ckpt_folder to a new name each time
+    full_checkpoint_path = os.path.join(snapshot_path, ckpt_folder)
+    if os.path.exists(full_checkpoint_path):
+        raise FileExistsError(f"Checkpoint folder already exists: {full_checkpoint_path}. Please use a different folder name.")
+    else:
+        os.makedirs(full_checkpoint_path, exist_ok=True)
+        print(f"Created checkpoint folder: {full_checkpoint_path}")
 
     if encoding_depth != 2:
         warnings.warn("Encoding depth is not 2. Frozen encoding layers will have random initialization and no learning rate.")
@@ -307,6 +319,8 @@ if __name__ == '__main__':
         warnings.warn("Epochs is not 100. Change the LR_Scheduler for more/less epochs.")
     if encoding_depth == 2 and ini_chNo == 64 and epochs == 100:
         print("Starting Transfer Learning Training...")
+    else:
+        warnings.warn("Training parameters are not optimal. Change the parameters for better results.")
 
     print(f"Data Directory: {data_directory}")
     print(f"Pretrained Weights: {pretrained_path}")
@@ -326,4 +340,5 @@ if __name__ == '__main__':
         Epoches=epochs,
         useGPU=use_gpu,
         snapshot_path=snapshot_path,
+        ckpt_folder=ckpt_folder
     ) 
