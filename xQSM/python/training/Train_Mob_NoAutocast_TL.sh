@@ -1,12 +1,12 @@
 #!/bin/bash -l
  
 #specify the required resources
-#$ -l tmem=24G
+#$ -l tmem=32G
 #$ -l gpu=1
 #$ -l gpu_type=a6000|P100|V100
  
 # Set the job name, output file paths
-#$ -N mob_Train_xQSM_NoAutocast_TL_bs4_ep50_lr4e-4
+#$ -N Train_Jul18_xQSM_NoAutocast_TL_bs32_ep100_lr4e-4
 #$ -o /cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/python/job_info_mob
 #$ -e /cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/python/job_info_mob
 #$ -wd /home/mobislam
@@ -63,7 +63,7 @@ export CUDA_LAUNCH_BLOCKING=1
 ########################################################
  
 # Navigate to the directory containing the scripts
-cd /cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/python/training/training_code_for_nii
+cd /cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/python/training
  
 python3 Train_NoAutoCast_TL.py -bs 32 -ep 100 -lr 4e-4 \
 --data_directory "/cluster/project7/SAMed/xQSM/QSM_data" \
