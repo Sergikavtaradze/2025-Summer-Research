@@ -9,22 +9,22 @@ from xQSM_blocks import *
 #################### Section 2 ###########################
 ## Parameters： Encoding depth: Times of Poolings 
 class xQSM(nn.Module):
-    def __init__(self, EncodingDepth):
+    def __init__(self, EncodingDepth, initial_num_layers=64):
         super(xQSM, self).__init__()
         self.EncodeConvs = []
         self.DecodeConvs = []
         #self.downs = []
         self.EncodingDepth = EncodingDepth
-        initial_num_layers = 64
+        self.initial_num_layers = initial_num_layers
         temp = list(range(1, EncodingDepth + 1))
-        self.InputOct = OctEncodingBlocks(1, initial_num_layers, alphax = 1, alphay = 0.5)
+        self.InputOct = OctEncodingBlocks(1, self.initial_num_layers, alphax = 1, alphay = 0.5)
 ################### Encoding Layers #######################
         for encodingLayer in temp:
             if encodingLayer == 1:
-                num_outputs= initial_num_layers * 2 ** (encodingLayer - 1)
-                self.EncodeConvs.append(OctEncodingBlocks(initial_num_layers, num_outputs))
+                num_outputs= self.initial_num_layers * 2 ** (encodingLayer - 1)
+                self.EncodeConvs.append(OctEncodingBlocks(self.initial_num_layers, num_outputs))
             else:             
-                num_outputs = initial_num_layers * 2 ** (encodingLayer - 1)
+                num_outputs = self.initial_num_layers * 2 ** (encodingLayer - 1)
                 self.EncodeConvs.append(OctEncodingBlocks(num_outputs // 2, num_outputs))
         self.EncodeConvs = nn.ModuleList(self.EncodeConvs)       
         #self.downs = nn.ModuleList(self.downs)
@@ -33,7 +33,7 @@ class xQSM(nn.Module):
         initial_decode_num_ch = num_outputs
 ################### Decoding Layers #######################
         for decodingLayer in temp:
-            if decodingLayer == EncodingDepth:
+            if decodingLayer == self.EncodingDepth:
                 num_inputs = initial_decode_num_ch // 2 ** (decodingLayer - 1)
                 self.DecodeConvs.append(OctDecodingBlocks(num_inputs, num_inputs))
             else:
