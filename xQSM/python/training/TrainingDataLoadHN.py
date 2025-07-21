@@ -1,3 +1,4 @@
+# Make sure to update the DATA_DIRECTORY to your own path, when testing this code
 import os
 import numpy as np
 import random
@@ -12,14 +13,26 @@ class QSMDataSet(data.Dataset):
     train_subjects=['sub-01', 'sub-02', 'sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08']
     val_subjects=['sub-09', 'sub-10']
     test_subjects=None
+    # Specific for dataset of 10 subjects each with 6 repetition
+    # 80/20 split
+    train_num_patches = 48*20
+    val_num_patches = 12*20
     
-    def __init__(self, root, split_type='train', transform=None, include_noise=True):
+    # We have 56 Volumes for the 8 subjects
+    # We use 56*20 patches per epoch (1120), could use less
+    def __init__(self, root, split_type='train', transform=None, include_noise=True, patch_size=(32, 32, 32)):
         super(QSMDataSet, self).__init__()
         self.root = root
         self.split_type = split_type
         self.transform = transform
         self.include_noise = include_noise
-        
+        self.patch_size = patch_size
+
+        # Instead of using 1 volume per subject/repetition
+        # We use way more patches as we are not using full volumes per epoch
+        # This will be used to make the epoch size consistent
+        self.num_patches = self.val_num_patches if split_type == 'val' else self.train_num_patches
+
         # Noise parameters (same as original)
         self.Prob = torch.tensor(0.8)   ## 20% (1 - 0.8) probability to add noise
         self.SNRs = torch.tensor([50, 40, 20, 10, 5])  # Noise SNRs
@@ -99,20 +112,27 @@ class QSMDataSet(data.Dataset):
                         })
 
     def __len__(self):
-        return len(self.files)
+        #print(len(self.files))
+        #print(self.num_patches)
+        return self.num_patches # Consistent epoch size
 
     def __getitem__(self, index):
-        datafiles = self.files[index]
-        
+        # The index does not correspond to a specific file/volume
+        # To have somewhat equal number of samples from different volumes we can use the modulo operator
+
+        #datafiles = self.files[index]
         # Load the data
-        name = datafiles["name"]
-        
+        print(f'this is the index: {index}')
+        print(f'this is the length of the files: {len(self.files)}')
+        vol_idx = index % len(self.files)
+        print(f'this is the volume index: {vol_idx}')
+        name = self.files[vol_idx]["name"]
         # Load NIfTI files (handles .gz compression automatically)
-        input_nii = nib.load(datafiles["input"])
-        target_nii = nib.load(datafiles["target"])
+        input_nii = nib.load(self.files[vol_idx]["input"])
+        target_nii = nib.load(self.files[vol_idx]["target"])
         
         # Get data arrays
-        input_data = input_nii.get_fdata()  # get_fdata() is preferred over get_data()
+        input_data = input_nii.get_fdata()  # get_fdata() over get_data()
         target_data = target_nii.get_fdata()
         
         # Convert to numpy arrays and then to torch tensors
@@ -122,6 +142,28 @@ class QSMDataSet(data.Dataset):
         input_tensor = torch.from_numpy(input_data).float()
         target_tensor = torch.from_numpy(target_data).float()
         
+        ######################
+        # Patchwise training #
+        ######################
+
+        # Might need to debug here, if the batch size is not 1
+        d, h, w = input_tensor.shape
+        pd, ph, pw = self.patch_size
+
+        print(input_tensor.shape)
+        print(target_tensor.shape)
+
+        # Select a random patch from the input tensor
+        i = random.randint(0, d - pd)
+        j = random.randint(0, h - ph)
+        k = random.randint(0, w - pw)
+
+        input_tensor = input_tensor[i:i+pd, j:j+ph, k:k+pw]
+        target_tensor = target_tensor[i:i+pd, j:j+ph, k:k+pw]
+
+        print(input_tensor.shape)
+        print(target_tensor.shape)
+
         # Add noise augmentation (optional)
         if self.include_noise:
             tmp = torch.rand(1)
@@ -167,7 +209,7 @@ def SigPower(ins):
 # Test the dataloader
 if __name__ == '__main__':
     # Update this path to your QSM data directory
-    DATA_DIRECTORY = '/home/student/Documents/Code/2025QSM_Tran_Learning/2025-Summer-Research/QSM_data'
+    DATA_DIRECTORY = '/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data'
     BATCH_SIZE = 2
 
     try:
