@@ -150,8 +150,8 @@ class QSMDataSet(data.Dataset):
         d, h, w = input_tensor.shape
         pd, ph, pw = self.patch_size
 
-        print(input_tensor.shape)
-        print(target_tensor.shape)
+        #print(input_tensor.shape)
+        #print(target_tensor.shape)
 
         # Select a random patch from the input tensor
         i = random.randint(0, d - pd)
@@ -161,8 +161,8 @@ class QSMDataSet(data.Dataset):
         input_tensor = input_tensor[i:i+pd, j:j+ph, k:k+pw]
         target_tensor = target_tensor[i:i+pd, j:j+ph, k:k+pw]
 
-        print(input_tensor.shape)
-        print(target_tensor.shape)
+        #print(input_tensor.shape)
+        #print(target_tensor.shape)
 
         # Add noise augmentation (optional)
         if self.include_noise:
