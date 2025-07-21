@@ -342,7 +342,7 @@ if __name__ == '__main__':
     if encoding_depth == 2 and ini_chNo == 64 and epochs == 100:
         print("Starting Transfer Learning Training...")
     else:
-        warnings.warn("Training parameters are not optimal. Change the parameters for better results.")
+        warnings.warn("Training parameters are not optimal. Change the parameters to default values for better Transfer Learning results.")
 
     print(f"Data Directory: {data_directory}")
     print(f"Pretrained Weights: {pretrained_path}")
