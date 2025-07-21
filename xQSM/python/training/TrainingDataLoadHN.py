@@ -122,10 +122,10 @@ class QSMDataSet(data.Dataset):
 
         #datafiles = self.files[index]
         # Load the data
-        print(f'this is the index: {index}')
-        print(f'this is the length of the files: {len(self.files)}')
+        #print(f'this is the index: {index}')
+        #print(f'this is the length of the files: {len(self.files)}')
         vol_idx = index % len(self.files)
-        print(f'this is the volume index: {vol_idx}')
+        #print(f'this is the volume index: {vol_idx}')
         name = self.files[vol_idx]["name"]
         # Load NIfTI files (handles .gz compression automatically)
         input_nii = nib.load(self.files[vol_idx]["input"])
