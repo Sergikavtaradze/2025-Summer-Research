@@ -136,7 +136,7 @@ def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', ckpt_
         torch.save(model.state_dict(), best_path)
 
 def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2, ini_chNo=64, 
-                          LR=0.001, batch_size=32, Epoches=50, useGPU=True, 
+                          LR=0.001, batch_size=32, epochs=50, useGPU=True, 
                           snapshot_path='./transfer_learning_checkpoints', ckpt_folder=None):
     """
     Train xQSM model with transfer learning approach
@@ -148,7 +148,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         ini_chNo: Initial number of channels
         LR: Learning rate
         Batchsize: Batch size
-        Epoches: Number of epochs
+        epochs: Number of epochs
         useGPU: Whether to use GPU
         snapshot_path: Directory to save checkpoints
         ckpt_folder: Folder to save checkpoints
@@ -227,9 +227,9 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         os.makedirs(full_checkpoint_path, exist_ok=True)
         print(f"Created checkpoint folder: {full_checkpoint_path}")
 
-    print(f"Training for {Epoches} epochs...")
+    print(f"Training for {epochs} epochs...")
     
-    for epoch in range(1, Epoches + 1):
+    for epoch in range(1, epochs + 1):
         # Training phase
         Chi_Net.train()
         epoch_train_loss = 0.0
@@ -271,7 +271,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         epoch_time = (time_end - time_start) / epoch
         
         # Print epoch summary with all requested information
-        print(f'Epoch [{epoch:3d}/{Epoches}] train_loss: {avg_train_loss:.6f} | val_loss: {val_loss:.6f} | best_val_loss: {best_val_loss:.6f} (epoch {best_epoch}) | Time: {epoch_time:.0f}s')
+        print(f'Epoch [{epoch:3d}/{epochs}] train_loss: {avg_train_loss:.6f} | val_loss: {val_loss:.6f} | best_val_loss: {best_val_loss:.6f} (epoch {best_epoch}) | Time: {epoch_time:.0f}s')
         
         # Save checkpoints periodically
         # if epoch % 10 == 0:
@@ -292,7 +292,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
     print(f'Best validation loss: {best_val_loss:.6f} (achieved at epoch {best_epoch})')
     print(f'Total training time: {total_time:.0f}s ({total_time/60:.1f}min)')
     
-    SaveNet(Chi_Net, Epoches, snapshot_path, ckpt_folder)
+    SaveNet(Chi_Net, epochs, snapshot_path, ckpt_folder)
     print(f"Final model saved to: {snapshot_path}")
     print('='*80)
     
@@ -359,7 +359,7 @@ if __name__ == '__main__':
         ini_chNo=ini_chNo,
         LR=learning_rate,
         batch_size=batch_size, 
-        Epoches=epochs,
+        epochs=epochs,
         useGPU=use_gpu,
         snapshot_path=snapshot_path,
         ckpt_folder=ckpt_folder
