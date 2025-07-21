@@ -12,6 +12,8 @@ from torch.utils import data
 import argparse
 import warnings
 
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+
 def freeze_encoding_layers(model):
     """
     Freeze the encoding layers of the xQSM model for transfer learning
@@ -27,6 +29,12 @@ def freeze_encoding_layers(model):
     for i, encode_conv in enumerate(model.EncodeConvs):
         for param in encode_conv.parameters():
             param.requires_grad = False
+            print(f'Frozen the encoding conv layer: {i}')
+
+    # Freeze all middle OctMidBlocks (MidConv)
+    # for param in model.MidConv.parameters():
+    #     param.requires_grad = False
+    #     print(f'Frozen the mid conv layer')
     
     # Count trainable vs total parameters
     total_params = sum(p.numel() for p in model.parameters())
@@ -87,7 +95,7 @@ def validate_model(model, val_loader, criterion, device):
     num_batches = 0
     
     with torch.no_grad():
-        for inputs, targets, names in val_loader:
+        for inputs, targets, _ in val_loader:
             inputs = inputs.to(device)
             targets = targets.to(device)
             
@@ -149,6 +157,15 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
     print('TRANSFER LEARNING TRAINING FOR HEAD AND NECK QSM')
     print('='*80)
     
+    # Create model
+    Chi_Net = xQSM(EncodingDepth=encoding_depth, ini_chNo=ini_chNo)
+    
+    # Load pretrained weights if available
+    # Chi_Net = load_pretrained_weights(Chi_Net, pretrained_path)
+    
+    # Freeze encoding layers
+    Chi_Net = freeze_encoding_layers(Chi_Net)
+    
     # Data Loading
     train_dataset = QSMDataSet(data_directory, split_type='train')
     val_dataset = QSMDataSet(data_directory, split_type='val')
@@ -171,7 +188,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
     # Set model to training mode
     Chi_Net.train()
 
-    criterion = nn.MSELoss(reduction='mean')
+    criterion = nn.MSELoss(reduction='sum')
 
     # Only optimize unfrozen layers
     trainable_params = [p for p in Chi_Net.parameters() if p.requires_grad]
@@ -189,7 +206,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
     # Device selection
     if useGPU and torch.cuda.is_available():
         device = torch.device("cuda:0")
-        Chi_Net = nn.DataParallel(Chi_Net)
+        #Chi_Net = nn.DataParallel(Chi_Net) # Only use this if you have multiple GPUs, we don't have multiple GPUs
         Chi_Net.to(device)
         print(f"Using GPU: {torch.cuda.device_count()} devices")
     else:
@@ -201,7 +218,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
     # But the script will be interrupted by the error.
     # When the script is re-run the folder will exist so the script will be interrupted
     # Even though the ckpt_folder will not have stored anything.
-    
+
     # Have to rename the ckpt_folder to a new name each time
     full_checkpoint_path = os.path.join(snapshot_path, ckpt_folder)
     if os.path.exists(full_checkpoint_path):
@@ -218,7 +235,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         epoch_train_loss = 0.0
         num_train_batches = 0
 
-        for i, (inputs, targets, names) in enumerate(train_loader):
+        for i, (inputs, targets, _) in enumerate(train_loader):
             # Move to device
             inputs = inputs.to(device)
             targets = targets.to(device)
@@ -311,7 +328,7 @@ if __name__ == '__main__':
     epochs = args.epochs
     learning_rate = args.learning_rate
     use_gpu = args.use_gpu
-
+    
     # Architecture parameters
     encoding_depth = args.encoding_depth
     ini_chNo = args.ini_chNo

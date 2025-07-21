@@ -30,7 +30,7 @@ class xQSM(nn.Module):
         self.EncodeConvs = nn.ModuleList(self.EncodeConvs)       
         #self.downs = nn.ModuleList(self.downs)
 ################### Mid Layers ############################
-        self.MidConv1 = OctMidBlocks(num_outputs)
+        self.MidConv = OctMidBlocks(num_outputs)
         initial_decode_num_ch = num_outputs
 ################### Decoding Layers #######################
         for decodingLayer in temp:
@@ -60,7 +60,7 @@ class xQSM(nn.Module):
             x_h = F.max_pool3d(x_h, 2)
             x_l = F.max_pool3d(x_l, 2)
 
-        x_h, x_l = self.MidConv1(x_h, x_l)
+        x_h, x_l = self.MidConv(x_h, x_l)
         #print('Mid' + str(encodingLayer) + str(x.size()))
 
         for decodingLayer in temp:
