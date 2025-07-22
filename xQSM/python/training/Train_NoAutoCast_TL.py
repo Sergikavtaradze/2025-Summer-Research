@@ -136,7 +136,7 @@ def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', ckpt_
         torch.save(model.state_dict(), best_path)
 
 def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2, ini_chNo=64, 
-                          LR=0.001, batch_size=32, epochs=50, useGPU=True, 
+                          LR=0.001, batch_size=32, epochs=50, patch_size=(32, 32, 32), useGPU=True, 
                           snapshot_path='./transfer_learning_checkpoints', ckpt_folder=None):
     """
     Train xQSM model with transfer learning approach
@@ -149,6 +149,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         LR: Learning rate
         Batchsize: Batch size
         epochs: Number of epochs
+        patch_size: Patch size
         useGPU: Whether to use GPU
         snapshot_path: Directory to save checkpoints
         ckpt_folder: Folder to save checkpoints
@@ -167,8 +168,8 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
     Chi_Net = freeze_encoding_layers(Chi_Net)
     
     # Data Loading
-    train_dataset = QSMDataSet(data_directory, split_type='train')
-    val_dataset = QSMDataSet(data_directory, split_type='val')
+    train_dataset = QSMDataSet(data_directory, split_type='train', patch_size=patch_size)
+    val_dataset = QSMDataSet(data_directory, split_type='val', patch_size=patch_size)
         
     print(f'Dataset: {len(train_dataset)} train, {len(val_dataset)} val samples')
     
@@ -310,6 +311,7 @@ if __name__ == '__main__':
     parser.add_argument("-lr", "--learning_rate", default=4e-4, type=float)
     parser.add_argument("-bs", "--batch_size", default=32, type=int)
     parser.add_argument("-ep", "--epochs", default=50, type=int)
+    parser.add_argument("-ps", "--patch_size", default=(32, 32, 32), type=int)
     parser.add_argument("--use_gpu", action="store_false", help="Default is True, Use GPU for training,")
     
     # Architecture parameters
