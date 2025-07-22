@@ -20,13 +20,16 @@ class QSMDataSet(data.Dataset):
     
     # We have 56 Volumes for the 8 subjects
     # We use 56*20 patches per epoch (1120), could use less
-    def __init__(self, root, split_type='train', transform=None, include_noise=True, patch_size=(32, 32, 32)):
+    def __init__(self, root, split_type='train', transform=None, include_noise=True, patch_size=(32, 32, 32), 
+                 stride=(24, 36, 20), num_random_patches_per_vol=42):
         super(QSMDataSet, self).__init__()
         self.root = root
         self.split_type = split_type
         self.transform = transform
         self.include_noise = include_noise
         self.patch_size = patch_size
+        self.stride = stride
+        self.num_random_patches_per_vol = num_random_patches_per_vol
 
         # Instead of using 1 volume per subject/repetition
         # We use way more patches as we are not using full volumes per epoch
@@ -39,7 +42,12 @@ class QSMDataSet(data.Dataset):
         
         # Find all available data files
         self.files = []
+        self.vol_shapes = []
         self._scan_data_directory()
+
+        self.fixed_patches = []
+        self.random_patch_meta = []
+        self._generate_patch_info()
 
     @property
     def current_subjects(self):
@@ -103,6 +111,9 @@ class QSMDataSet(data.Dataset):
                     
                     # Check if both files exist
                     if os.path.exists(input_file) and os.path.exists(target_file):
+                        # Input shape used later for patchwise training
+                        input_shape = nib.load(input_file).shape
+                        self.vol_shapes.append(input_shape)
                         self.files.append({
                             "input": input_file,
                             "target": target_file,
@@ -110,24 +121,77 @@ class QSMDataSet(data.Dataset):
                             "session": ses_id,
                             "name": f"{sub_id}_{ses_id}"
                         })
+    def _generate_patch_info(self):
+        # Generate fixed patches
+        for vol_idx, _ in enumerate(self.files):
+            d, h, w = self.vol_shapes[vol_idx]
+            pd, ph, pw = self.patch_size
+            sd, sh, sw = self.stride
+            
+            i = 0
+            while i + pd <= d:
+                j = 0
+                while j + ph <= h:
+                    k = 0
+                    while k + pw <= w:
+                        self.fixed_patches.append({
+                            "vol_idx": vol_idx,
+                            "coords": (i, j, k)
+                        })
+                        k += sw
+                    j += sh
+                i += sd
+        
+        # Generate metadata for random patches (coordinates generated in __getitem__)
+        for vol_idx in range(len(self.files)):
+            for _ in range(self.num_random_patches_per_vol):
+                self.random_patch_meta.append({
+                    "vol_idx": vol_idx
+                })
 
     def __len__(self):
         #print(len(self.files))
         #print(self.num_patches)
-        return self.num_patches # Consistent epoch size
-
+        #return self.num_patches # Consistent epoch size
+        return len(self.fixed_patches) + len(self.random_patch_meta)
+    
     def __getitem__(self, index):
-        # The index does not correspond to a specific file/volume
-        # To have somewhat equal number of samples from different volumes we can use the modulo operator
-
-        #datafiles = self.files[index]
-        # Load the data
+        #print(f'This is the length {self.__len__()}')
         #print(f'this is the index: {index}')
-        #print(f'this is the length of the files: {len(self.files)}')
-        vol_idx = index % len(self.files)
-        #print(f'this is the volume index: {vol_idx}')
+        
+        if index < len(self.fixed_patches):
+            # Fixed patch case
+            #print(f'this is the patch info: {self.fixed_patches[index]}')
+            patch_info = self.fixed_patches[index]
+            vol_idx = patch_info["vol_idx"]
+            #print(f'this is the fixed volume index: {vol_idx}')
+            i, j, k = patch_info["coords"]
+            pd, ph, pw = self.patch_size # Use for patch extraction later
+        else:
+            # Random patch case
+            random_idx = index - len(self.fixed_patches)
+            patch_info = self.random_patch_meta[random_idx]
+            #print(f'this is the random patch info: {patch_info}')
+            vol_idx = patch_info["vol_idx"]
+            #print(f'this is the random volume index: {vol_idx}')
+            # Generate random coordinates dynamically
+            d, h, w = self.vol_shapes[vol_idx]
+            pd, ph, pw = self.patch_size
+            i = random.randint(0, d - pd)
+            j = random.randint(0, h - ph)
+            k = random.randint(0, w - pw)
+        # datafiles = self.files[index]
+        # Load the data
+        # print(f'this is the index: {index}')
+        # print(f'this is the length of the files: {len(self.files)}')
+        # vol_idx = index % len(self.files)
+        # print(f'this is the volume index: {vol_idx}')
         name = self.files[vol_idx]["name"]
+        #print(f'this is the name: {name}')
+        
         # Load NIfTI files (handles .gz compression automatically)
+        # Could implement caching here? Not sure if it's worth it
+        # I have plenty of time but not plenty of RAM
         input_nii = nib.load(self.files[vol_idx]["input"])
         target_nii = nib.load(self.files[vol_idx]["target"])
         
@@ -144,25 +208,14 @@ class QSMDataSet(data.Dataset):
         
         ######################
         # Patchwise training #
-        ######################
+        ######################        
 
-        # Might need to debug here, if the batch size is not 1
-        d, h, w = input_tensor.shape
-        pd, ph, pw = self.patch_size
+        # If caching volumes have to use .clone(), since we don't want the cached volumes to be modified with the subsequent noise addition
+        input_tensor = input_tensor[i:i+pd, j:j+ph, k:k+pw] # .clone()
+        target_tensor = target_tensor[i:i+pd, j:j+ph, k:k+pw] # .clone()
 
-        #print(input_tensor.shape)
-        #print(target_tensor.shape)
-
-        # Select a random patch from the input tensor
-        i = random.randint(0, d - pd)
-        j = random.randint(0, h - ph)
-        k = random.randint(0, w - pw)
-
-        input_tensor = input_tensor[i:i+pd, j:j+ph, k:k+pw]
-        target_tensor = target_tensor[i:i+pd, j:j+ph, k:k+pw]
-
-        #print(input_tensor.shape)
-        #print(target_tensor.shape)
+        #print(f'this is the input tensor: {input_tensor.shape}')
+        #print(f'this is the target tensor: {target_tensor.shape}')
 
         # Add noise augmentation (optional)
         if self.include_noise:
