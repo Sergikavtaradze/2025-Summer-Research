@@ -29,7 +29,7 @@ def freeze_encoding_layers(model):
     for i, encode_conv in enumerate(model.EncodeConvs):
         for param in encode_conv.parameters():
             param.requires_grad = False
-            print(f'Frozen the encoding conv layer: {i}')
+            # print(f'Frozen the encoding conv layer: {i}')
 
     # Freeze all middle OctMidBlocks (MidConv)
     # for param in model.MidConv.parameters():
