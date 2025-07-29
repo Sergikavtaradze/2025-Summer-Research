@@ -23,14 +23,14 @@ class QSMDataSet(data.Dataset):
     
     # We have 56 Volumes for the 8 subjects
     # We use 56*20 patches per epoch (1120), could use less
-    def __init__(self, root, split_type='train', transform=None, include_noise=True, patch_size=(32, 32, 32), 
+    def __init__(self, root = './', split_type='train', transform=None, include_noise=True, patch_size=(32, 32, 32), 
                  stride=(24, 36, 20), num_random_patches_per_vol=42, brain_only=False):
         super(QSMDataSet, self).__init__()
         self.root = root
         self.split_type = split_type
         self.transform = transform
         self.include_noise = include_noise
-        self.patch_size = patch_size
+        self.patch_size = self.patch_size = (patch_size, patch_size, patch_size) if isinstance(patch_size, (float, int)) else patch_size
         self.stride = stride
         self.num_random_patches_per_vol = num_random_patches_per_vol
         self.brain_only = brain_only
@@ -106,39 +106,70 @@ class QSMDataSet(data.Dataset):
     def _scan_data_directory(self):
         """Scan the data directory for current split subjects only"""
         current_subjects = self.current_subjects
+        
         if not current_subjects:
             return
-            
-        for subject in current_subjects:
-            # Create pattern for this specific subject
-            input_pattern = os.path.join(self.root, f"{subject}/ses-*/qsm/*_unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz")
-            input_files = glob.glob(input_pattern)
-            
-            for input_file in input_files:
-                # Extract subject and session from filename
-                filename = os.path.basename(input_file)
-                # Parse sub-XX_ses-XX from filename
-                parts = filename.split('_')
-                if len(parts) >= 2:
-                    sub_id = parts[0]  # sub-XX
-                    ses_id = parts[1]  # ses-XX
-                    
-                    # Construct the corresponding target file path
-                    target_filename = f"{sub_id}_{ses_id}_unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz"
-                    target_file = os.path.join(os.path.dirname(input_file), target_filename)
-                    
-                    # Check if both files exist
-                    if os.path.exists(input_file) and os.path.exists(target_file):
-                        # Input shape used later for patchwise training
-                        input_shape = nib.load(input_file).shape
-                        self.vol_shapes.append(input_shape)
-                        self.files.append({
-                            "input": input_file,
-                            "target": target_file,
-                            "subject": sub_id,
-                            "session": ses_id,
-                            "name": f"{sub_id}_{ses_id}"
-                        })
+        
+        if self.brain_only:
+            for subject in current_subjects:
+                # Create pattern for this specific subject
+                input_pattern = os.path.join(self.root, f"{subject}/ses-*/qsm/*_unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz")
+                input_files = glob.glob(input_pattern)
+                for input_file in input_files:
+                    # Extract subject and session from filename
+                    filename = os.path.basename(input_file)
+                    # Parse sub-XX_ses-XX from filename
+                    parts = filename.split('_')
+                    if len(parts) >= 2:
+                        sub_id = parts[0]  # sub-XX
+                        ses_id = parts[1]  # ses-XX
+                        
+                        # Construct the corresponding target file path
+                        target_filename = f"{sub_id}_{ses_id}_unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap.nii.gz"
+                        target_file = os.path.join(os.path.dirname(input_file), target_filename)
+                        
+                        # Check if both files exist
+                        if os.path.exists(input_file) and os.path.exists(target_file):
+                            # Input shape used later for patchwise training
+                            input_shape = nib.load(input_file).shape
+                            self.vol_shapes.append(input_shape)
+                            self.files.append({
+                                "input": input_file,
+                                "target": target_file,
+                                "subject": sub_id,
+                                "session": ses_id,
+                                "name": f"{sub_id}_{ses_id}"
+                            })
+        else:
+            for subject in current_subjects:
+                # Create pattern for this specific subject
+                input_pattern = os.path.join(self.root, f"{subject}/ses-*/qsm/*_unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield_masked_cropped.nii.gz")
+                input_files = glob.glob(input_pattern)
+                for input_file in input_files:
+                    # Extract subject and session from filename
+                    filename = os.path.basename(input_file)
+                    # Parse sub-XX_ses-XX from filename
+                    parts = filename.split('_')
+                    if len(parts) >= 2:
+                        sub_id = parts[0]  # sub-XX
+                        ses_id = parts[1]  # ses-XX
+                        
+                        # Construct the corresponding target file path
+                        target_filename = f"{sub_id}_{ses_id}_unwrapped-SEGUE_mask-nfe_bfr-PDF_susc-autoNDI_Chimap_masked_cropped.nii.gz"
+                        target_file = os.path.join(os.path.dirname(input_file), target_filename)
+                        
+                        # Check if both files exist
+                        if os.path.exists(input_file) and os.path.exists(target_file):
+                            # Input shape used later for patchwise training
+                            input_shape = nib.load(input_file).shape
+                            self.vol_shapes.append(input_shape)
+                            self.files.append({
+                                "input": input_file,
+                                "target": target_file,
+                                "subject": sub_id,
+                                "session": ses_id,
+                                "name": f"{sub_id}_{ses_id}"
+                            })
     def _generate_patch_info(self):
         # Generate fixed patches
         for vol_idx, _ in enumerate(self.files):
@@ -282,11 +313,14 @@ if __name__ == '__main__':
     # Update this path to your QSM data directory
     DATA_DIRECTORY = '/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data'
     BATCH_SIZE = 2
-
+    print(DATA_DIRECTORY)
     try:
+        DATA_DIRECTORY = '/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data'
+        BATCH_SIZE = 2
+        print(f"This is the data directory {DATA_DIRECTORY}")
         # Create subset datasets
-        train_dataset = QSMDataSet(DATA_DIRECTORY, split_type='train')
-        val_dataset = QSMDataSet(DATA_DIRECTORY, split_type='val')
+        train_dataset = QSMDataSet(root = DATA_DIRECTORY, split_type='train')
+        val_dataset = QSMDataSet(root = DATA_DIRECTORY, split_type='val')
         
         # Create dataloaders
         trainloader = data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
