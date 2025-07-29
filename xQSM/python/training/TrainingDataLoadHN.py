@@ -13,6 +13,9 @@ class QSMDataSet(data.Dataset):
     train_subjects=['sub-01', 'sub-02', 'sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08']
     val_subjects=['sub-09', 'sub-10']
     test_subjects=None
+    brain_train_subjects=['sub-01', 'sub-02', 'sub-03', 'sub-05', 'sub-06', 'sub-07']           # sub 04 is missing brain mask data
+    brain_val_subjects=['sub-08', 'sub-09']                                                     # sub 10 is missing brain mask data
+    brain_test_subjects=None
     # Specific for dataset of 10 subjects each with 6 repetition
     # 80/20 split
     train_num_patches = 48*20
@@ -21,7 +24,7 @@ class QSMDataSet(data.Dataset):
     # We have 56 Volumes for the 8 subjects
     # We use 56*20 patches per epoch (1120), could use less
     def __init__(self, root, split_type='train', transform=None, include_noise=True, patch_size=(32, 32, 32), 
-                 stride=(24, 36, 20), num_random_patches_per_vol=42):
+                 stride=(24, 36, 20), num_random_patches_per_vol=42, brain_only=False):
         super(QSMDataSet, self).__init__()
         self.root = root
         self.split_type = split_type
@@ -30,6 +33,7 @@ class QSMDataSet(data.Dataset):
         self.patch_size = patch_size
         self.stride = stride
         self.num_random_patches_per_vol = num_random_patches_per_vol
+        self.brain_only = brain_only
 
         # Instead of using 1 volume per subject/repetition
         # We use way more patches as we are not using full volumes per epoch
@@ -52,14 +56,24 @@ class QSMDataSet(data.Dataset):
     @property
     def current_subjects(self):
         """Property decorator to get current split subjects"""
-        if self.split_type == 'train':
-            return self.train_subjects
-        elif self.split_type == 'val':
-            return self.val_subjects
-        elif self.split_type == 'test':
-            return self.test_subjects if self.test_subjects else []
+        if self.brain_only:
+            if self.split_type == 'train':
+                return self.brain_train_subjects
+            elif self.split_type == 'val':
+                return self.brain_val_subjects
+            elif self.split_type == 'test':
+                return self.brain_test_subjects if self.brain_test_subjects else []
+            else:
+                raise ValueError(f"Unknown split_type: {self.split_type}")
         else:
-            raise ValueError(f"Unknown split_type: {self.split_type}")
+            if self.split_type == 'train':
+                return self.train_subjects
+            elif self.split_type == 'val':
+                return self.val_subjects
+            elif self.split_type == 'test':
+                return self.test_subjects if self.test_subjects else []
+            else:
+                raise ValueError(f"Unknown split_type: {self.split_type}")
 
     @classmethod
     def get_train_subjects(cls):
