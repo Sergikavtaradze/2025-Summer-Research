@@ -76,27 +76,31 @@ class QSMDataSet(data.Dataset):
                 raise ValueError(f"Unknown split_type: {self.split_type}")
 
     @classmethod
-    def get_train_subjects(cls):
+    def get_train_subjects(self, cls):
         """Class method decorator to get training subjects"""
-        return cls.train_subjects
+        return cls.train_subjects if not self.brain_only else cls.brain_train_subjects
 
     @classmethod
-    def get_val_subjects(cls):
+    def get_val_subjects(self, cls):
         """Class method decorator to get validation subjects"""
-        return cls.val_subjects
+        return cls.val_subjects if not self.brain_only else cls.brain_test_subjects
 
     @classmethod
-    def get_test_subjects(cls):
+    def get_test_subjects(self, cls):
         """Class method decorator to get test subjects"""
         return cls.test_subjects if cls.test_subjects else []
 
     @classmethod
-    def get_all_split_subjects(cls):
+    def get_all_split_subjects(self, cls):
         """Class method to get all subjects organized by split"""
         return {
             'train': cls.train_subjects,
             'val': cls.val_subjects,
             'test': cls.test_subjects if cls.test_subjects else []
+        } if not self.brain_only else {
+            'train': cls.brain_train_subjects,
+            'val': cls.brain_val_subjects,
+            'test': cls.brain_test_subjects if cls.brain_test_subjects else []
         }
 
     def _scan_data_directory(self):
