@@ -158,15 +158,6 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
     print('TRANSFER LEARNING TRAINING FOR HEAD AND NECK QSM')
     print('='*80)
     
-    # Create model
-    Chi_Net = xQSM(EncodingDepth=encoding_depth, ini_chNo=ini_chNo)
-    
-    # Load pretrained weights if available
-    # Chi_Net = load_pretrained_weights(Chi_Net, pretrained_path)
-    
-    # Freeze encoding layers
-    Chi_Net = freeze_encoding_layers(Chi_Net)
-    
     # Data Loading
     train_dataset = QSMDataSet(data_directory, split_type='train', patch_size=patch_size)
     val_dataset = QSMDataSet(data_directory, split_type='val', patch_size=patch_size)
@@ -320,10 +311,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Path parameters
-    data_directory = args.data_directory
-    pretrained_path = args.pretrained_path
-    snapshot_path = args.snapshot_path
-    ckpt_folder = args.ckpt_folder
+    data_directory = None#args.data_directory
+    pretrained_path = None#args.pretrained_path
+    snapshot_path = None#args.snapshot_path
+    ckpt_folder = None#args.ckpt_folder
     
     # Training parameters
     batch_size = args.batch_size
