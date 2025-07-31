@@ -14,37 +14,6 @@ import warnings
 
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 
-def freeze_encoding_layers(model):
-    """
-    Freeze the encoding layers of the xQSM model for transfer learning
-    
-    Args:
-        model: xQSM model instance
-    """
-    # Freeze input octave layer
-    for param in model.InputOct.parameters():
-        param.requires_grad = False
-    
-    # Freeze all encoding convolution layers
-    for i, encode_conv in enumerate(model.EncodeConvs):
-        for param in encode_conv.parameters():
-            param.requires_grad = False
-            # print(f'Frozen the encoding conv layer: {i}')
-
-    # Freeze all middle OctMidBlocks (MidConv)
-    # for param in model.MidConv.parameters():
-    #     param.requires_grad = False
-    #     print(f'Frozen the mid conv layer')
-    
-    # Count trainable vs total parameters
-    total_params = sum(p.numel() for p in model.parameters())
-    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    frozen_params = total_params - trainable_params
-    
-    print(f"Transfer Learning Setup: {trainable_params:,}/{total_params:,} trainable parameters ({trainable_params/total_params*100:.1f}%)")
-    
-    return model
-
 def load_pretrained_weights(model, pretrained_path):
     """
     Load pretrained weights into the model
@@ -174,8 +143,11 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
     # Load pretrained weights if available
     Chi_Net = load_pretrained_weights(Chi_Net, pretrained_path)
     
-    # Freeze encoding layers
-    Chi_Net = freeze_encoding_layers(Chi_Net)
+    # Count trainable vs total parameters (Should be the same)
+    total_params = sum(p.numel() for p in Chi_Net.parameters())
+    trainable_params = sum(p.numel() for p in Chi_Net.parameters() if p.requires_grad)
+    
+    print(f"Transfer Learning Setup: {trainable_params:,}/{total_params:,} trainable parameters ({trainable_params/total_params*100:.1f}%)")
     
     # Set model to training mode
     Chi_Net.train()
@@ -264,11 +236,6 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         
         # Print epoch summary with all requested information
         print(f'Epoch [{epoch:3d}/{epochs}] train_loss: {avg_train_loss:.6f} | val_loss: {val_loss:.6f} | best_val_loss: {best_val_loss:.6f} (epoch {best_epoch}) | Time: {epoch_time:.0f}s')
-        
-        # Save checkpoints periodically
-        # if epoch % 10 == 0:
-        #     print(f"  → Checkpoint saved (epoch {epoch})")
-        #     SaveNet(Chi_Net, epoch, snapshot_path)
         
         # Save best model
         if val_loss < best_val_loss:
