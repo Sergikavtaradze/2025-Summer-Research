@@ -11,8 +11,9 @@ xQSM/xQSM_Checkpoints
 #HN_Checkpoints
 QSM_data
 xQSM/ckpt/
-xQSM/python/eval/Jul18_Inference_Results/
-2025-Summer-Research/xQSM/python/eval/
+xQSM/python/eval/*Inference_Results/
+xQSM/python/eval/run_demo.ipynb
+xQSM/python/eval/
 
 # venv (not needed on github)
 QSM/
