@@ -7,13 +7,34 @@ import torch.nn.functional as F
 # basic blocks
 
 
+class SELayer3D(nn.Module):
+    '''
+    Implemented using https://github.com/moskomule/senet.pytorch/blob/master/senet/se_module.py
+    1) Using 3D Adaptive pooling instead of 2D.
+    '''
+    def __init__(self, channel, reduction=16):
+        super(SELayer3D, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool3d(1)
+        self.fc = nn.Sequential(
+            nn.Linear(channel, channel // reduction),
+            nn.ReLU(inplace=True),
+            nn.Linear(channel // reduction, channel),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        b, c, _, _, _ = x.size()
+        y = self.avg_pool(x).view(b, c)
+        y = self.fc(y).view(b, c, 1, 1, 1)
+        return x * y
+
 class OctEncodingBlocks(nn.Module):
-    def __init__(self, num_in, num_out, alphax=0.5, alphay=0.5):
+    def __init__(self, num_in, num_out, alphax=0.5, alphay=0.5, use_se=False):
         super(OctEncodingBlocks, self).__init__()
-        self.EncodeConv1 = OctConv(num_in, num_out, alphax, alphay)
+        self.EncodeConv1 = OctConv(num_in, num_out, alphax, alphay, use_se=use_se)
         if alphax == 1:
             alphax = 0.5
-        self.EncodeConv2 = OctConv(num_out, num_out, alphax, alphay)
+        self.EncodeConv2 = OctConv(num_out, num_out, alphax, alphay,use_se=use_se)
 
     def forward(self, x_h, x_l):
         y_h, y_l = self.EncodeConv1(x_h, x_l)
@@ -22,10 +43,10 @@ class OctEncodingBlocks(nn.Module):
 
 
 class OctMidBlocks(nn.Module):
-    def __init__(self,  num_ch, alphax=0.5, alphay=0.5):
+    def __init__(self,  num_ch, alphax=0.5, alphay=0.5, use_se = False):
         super(OctMidBlocks, self).__init__()
-        self.MidConv1 = OctConv(num_ch, 2 * num_ch, alphax, alphay)
-        self.MidConv2 = OctConv(2 * num_ch, num_ch, alphax, alphay)
+        self.MidConv1 = OctConv(num_ch, 2 * num_ch, alphax, alphay, use_se=use_se)
+        self.MidConv2 = OctConv(2 * num_ch, num_ch, alphax, alphay, use_se=use_se)
 
     def forward(self, x_h, x_l):
         y_h, y_l = self.MidConv1(x_h, x_l)
@@ -34,14 +55,14 @@ class OctMidBlocks(nn.Module):
 
 
 class OctDecodingBlocks(nn.Module):
-    def __init__(self,  num_in, num_out, alphax=0.5, alphay=0.5, bilinear=False):
+    def __init__(self,  num_in, num_out, alphax=0.5, alphay=0.5, bilinear=False, use_se = False):
         super(OctDecodingBlocks, self).__init__()
         if bilinear:
             self.up = OctUp(num_in, alphax=0.5,  bilinear=True)
         else:
             self.up = OctUp(num_in, alphax=0.5,  bilinear=False)
-        self.DecodeConv1 = OctConv(2 * num_in, num_in, alphax, alphay)
-        self.DecodeConv2 = OctConv(num_in, num_out, alphax, alphay)
+        self.DecodeConv1 = OctConv(2 * num_in, num_in, alphax, alphay, use_se=use_se)
+        self.DecodeConv2 = OctConv(num_in, num_out, alphax, alphay, use_se=use_se)
 
     def forward(self, x_h1, x_l1, x_h2, x_l2):
         x_h1, x_l1 = self.up(x_h1, x_l1)
@@ -88,7 +109,7 @@ class OctUp(nn.Module):
 
 
 class OctConv(nn.Module):
-    def __init__(self, num_in, num_out, alphax, alphay, ks=3, pd=1, hasbias=True):
+    def __init__(self, num_in, num_out, alphax, alphay, ks=3, pd=1, hasbias=True, use_se=False):
         super(OctConv, self).__init__()
         # This calss Defines the OctConv operation.
         # define feature decomposition
@@ -98,6 +119,7 @@ class OctConv(nn.Module):
         self.Out_L = (num_out - self.Out_H)
         self.alphax = alphax
         self.alphay = alphay
+        self.use_se = use_se # Default: False
         # define operations
         if alphax == 1:
             # for the input layer.
@@ -109,6 +131,11 @@ class OctConv(nn.Module):
             self.BN_HL = nn.BatchNorm3d(self.Out_L)
             self.ReLU_H = nn.ReLU(inplace=True)
             self.ReLU_L = nn.ReLU(inplace=True)
+
+            if self.use_se:
+                self.se_HH = SELayer3D(self.Out_H)
+                self.se_HL = SELayer3D(self.Out_L)
+
         elif alphay == 1:
             # only for the final output layer
             self.convHH = nn.Conv3d(
@@ -122,6 +149,8 @@ class OctConv(nn.Module):
             self.ReLU_H = nn.ReLU(inplace=True)
             self.FinalConv = nn.Conv3d(
                 self.Out_H, 1, 1, stride=1, padding=0, bias=hasbias)
+            if self.use_se:
+                self.se_h = SELayer3D(self.Out_H)
         else:
             # mid layers
             self.convHH = nn.Conv3d(
@@ -141,16 +170,24 @@ class OctConv(nn.Module):
             self.BN_HL = nn.BatchNorm3d(self.Out_L)
             self.ReLU_L = nn.ReLU(inplace=True)
 
+            if self.use_se:
+                self.se_h = SELayer3D(self.Out_H)
+                self.se_l = SELayer3D(self.Out_L)
+
     def forward(self, x_h, x_l):
         ## Y_H = conv(H) + upsample(conv(L))
         ## Y_L = conv(L) + conv(avgpool(H))
         if self.alphax == 1:
             y_h = self.convHH(x_h)
             y_h = self.BN_HH(y_h)
+            if self.use_se:
+                y_h = self.se_hh(y_h)
             y_l = F.avg_pool3d(x_h, 2)
             y_l = self.convHL(y_l)
             y_l = self.BN_HL(y_l)
             ## BN and ReLU()
+            if self.use_se:
+                y_l = self.se_hl(y_l)
             y_h = self.ReLU_H(y_h)
             y_l = self.ReLU_L(y_l)
             return y_h, y_l
@@ -162,6 +199,7 @@ class OctConv(nn.Module):
             y_h2 = self.BN_LH(y_h2)
             ## BN and ReLU()
             y_h = y_h1 + y_h2
+            y_h = self.se_h(y_h)
             y_h = self.ReLU_H(y_h)
             # final Output, Convolution without relu,
             y_h = self.FinalConv(y_h)
@@ -182,7 +220,11 @@ class OctConv(nn.Module):
             y_l2 = self.BN_HL(y_l2)
             # final addition
             y_h = y_h1 + y_h2
+            if self.use_se:
+                y_h = self.se_h(y_h)
             y_l = y_l1 + y_l2
+            if self.use_se:
+                y_l = self.se_l(y_l)
             ## BN and ReLU()
             y_h = self.ReLU_H(y_h)
             y_l = self.ReLU_L(y_l)

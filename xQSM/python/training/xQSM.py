@@ -9,7 +9,7 @@ from xQSM_blocks import *
 #################### Section 2 ###########################
 ## Parameters： Encoding depth: Times of Poolings 
 class xQSM(nn.Module):
-    def __init__(self, EncodingDepth, ini_chNo = 32):
+    def __init__(self, EncodingDepth, ini_chNo = 32, use_se=False):
         super(xQSM, self).__init__()
         self.EncodeConvs = []
         self.DecodeConvs = []
@@ -18,30 +18,30 @@ class xQSM(nn.Module):
         initial_num_layers = ini_chNo
         #initial_num_layers = 64
         temp = list(range(1, EncodingDepth + 1))
-        self.InputOct = OctEncodingBlocks(1, initial_num_layers, alphax = 1, alphay = 0.5)
+        self.InputOct = OctEncodingBlocks(1, initial_num_layers, alphax = 1, alphay = 0.5, use_se = use_se)
 ################### Encoding Layers #######################
         for encodingLayer in temp:
             if encodingLayer == 1:
                 num_outputs= initial_num_layers * 2 ** (encodingLayer - 1)
-                self.EncodeConvs.append(OctEncodingBlocks(initial_num_layers, num_outputs))
+                self.EncodeConvs.append(OctEncodingBlocks(initial_num_layers, num_outputs, use_se = use_se))
             else:             
                 num_outputs = initial_num_layers * 2 ** (encodingLayer - 1)
-                self.EncodeConvs.append(OctEncodingBlocks(num_outputs // 2, num_outputs))
+                self.EncodeConvs.append(OctEncodingBlocks(num_outputs // 2, num_outputs, use_se = use_se))
         self.EncodeConvs = nn.ModuleList(self.EncodeConvs)       
         #self.downs = nn.ModuleList(self.downs)
 ################### Mid Layers ############################
-        self.MidConv1 = OctMidBlocks(num_outputs)
+        self.MidConv1 = OctMidBlocks(num_outputs, use_se = use_se)
         initial_decode_num_ch = num_outputs
 ################### Decoding Layers #######################
         for decodingLayer in temp:
             if decodingLayer == EncodingDepth:
                 num_inputs = initial_decode_num_ch // 2 ** (decodingLayer - 1)
-                self.DecodeConvs.append(OctDecodingBlocks(num_inputs, num_inputs))
+                self.DecodeConvs.append(OctDecodingBlocks(num_inputs, num_inputs, use_se = use_se))
             else:
                 num_inputs = initial_decode_num_ch // 2 ** (decodingLayer - 1)
-                self.DecodeConvs.append(OctDecodingBlocks(num_inputs, num_inputs // 2))
+                self.DecodeConvs.append(OctDecodingBlocks(num_inputs, num_inputs // 2, use_se = use_se))
         self.DecodeConvs = nn.ModuleList(self.DecodeConvs)
-        self.FinalOct =  OctConv(num_inputs, num_inputs, alphax = 0.5, alphay = 1)
+        self.FinalOct =  OctConv(num_inputs, num_inputs, alphax = 0.5, alphay = 1, use_se = use_se)
 ################## End Section 2 ##########################
 
     def forward(self, x):

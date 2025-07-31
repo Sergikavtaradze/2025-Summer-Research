@@ -106,7 +106,8 @@ def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', ckpt_
 
 def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2, ini_chNo=64, 
                           LR=0.001, batch_size=32, epochs=50, patch_size=(32, 32, 32), useGPU=True, 
-                          snapshot_path='./transfer_learning_checkpoints', ckpt_folder=None):
+                          snapshot_path='./transfer_learning_checkpoints', ckpt_folder=None,
+                          use_se = None):
     """
     Train xQSM model with transfer learning approach
     
@@ -122,6 +123,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         useGPU: Whether to use GPU
         snapshot_path: Directory to save checkpoints
         ckpt_folder: Folder to save checkpoints
+        use_se: bool - specify if squeeze and excitation network will be used.
     """
     print('='*80)
     print('TRANSFER LEARNING TRAINING FOR HEAD AND NECK QSM')
@@ -275,13 +277,14 @@ if __name__ == '__main__':
     # Architecture parameters
     parser.add_argument("-ed", "--encoding_depth", default=2, type=int)
     parser.add_argument("-ic", "--ini_chNo", default=64, type=int)
+    parser.add_argument("-se", "--squeeze_exc", action="store_true", help="Default is False (i.e. do not use squeeze and excitation blocks)")
     args = parser.parse_args()
 
     # Path parameters
-    data_directory = None#args.data_directory
-    pretrained_path = None#args.pretrained_path
-    snapshot_path = None#args.snapshot_path
-    ckpt_folder = None#args.ckpt_folder
+    data_directory = args.data_directory
+    pretrained_path = args.pretrained_path
+    snapshot_path = args.snapshot_path
+    ckpt_folder = args.ckpt_folder
     
     # Training parameters
     batch_size = args.batch_size
@@ -323,4 +326,5 @@ if __name__ == '__main__':
         useGPU=use_gpu,
         snapshot_path=snapshot_path,
         ckpt_folder=ckpt_folder
+
     ) 
