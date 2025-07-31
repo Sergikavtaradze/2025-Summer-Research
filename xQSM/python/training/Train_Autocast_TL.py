@@ -116,8 +116,8 @@ def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', ckpt_
         best_loss: Best validation loss (if this is the best model)
     """
     if ckpt_folder:
-        os.makedirs(os.path.join(snapshot_path, ckpt_folder), exist_ok=True)
         snapshot_path = os.path.join(snapshot_path, ckpt_folder)
+        os.makedirs(snapshot_path, exist_ok=True) 
     else:
         os.makedirs(snapshot_path, exist_ok=True)
     
@@ -257,13 +257,13 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         # Save checkpoints periodically
         if epoch % 10 == 0:
             print(f"  → Checkpoint saved (epoch {epoch})")
-            SaveNet(Chi_Net, epoch, snapshot_path)
+            SaveNet(Chi_Net, epoch, snapshot_path, ckpt_folder=ckpt_folder)
         
         # Save best model
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             best_epoch = epoch
-            SaveNet(Chi_Net, epoch, snapshot_path, best_val_loss)
+            SaveNet(Chi_Net, epoch, snapshot_path, ckpt_folder=ckpt_folder, best_val_loss=best_val_loss)
             print(f"New best model! Val: {best_val_loss:.6f} (epoch {best_epoch})")
                     
     # Final summary
@@ -273,7 +273,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
     print(f'Best validation loss: {best_val_loss:.6f} (achieved at epoch {best_epoch})')
     print(f'Total training time: {total_time:.0f}s ({total_time/60:.1f}min)')
     
-    SaveNet(Chi_Net, Epoches, snapshot_path)
+    SaveNet(Chi_Net, Epoches, snapshot_path, ckpt_folder=ckpt_folder)
     print(f"Final model saved to: {snapshot_path}")
     print('='*80)
     

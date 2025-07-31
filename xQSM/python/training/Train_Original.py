@@ -50,6 +50,12 @@ def TrainNet(Chi_Net, LR=0.001, Batchsize=32, Epoches=100, patch_size=(32, 32, 3
     best_val_loss = float('inf')
     best_epoch = 0
 
+    Chi_Net.apply(weights_init)
+    Chi_Net.train()
+
+    print(Chi_Net.state_dict)
+    print(get_parameter_number(Chi_Net))
+    
     time_start = time.time()
     if useGPU:
         if torch.cuda.is_available():
@@ -150,11 +156,6 @@ def main():
     args = parser.parse_args()
 
     Chi_Net = xQSM(2, 64)
-    Chi_Net.apply(weights_init)
-    Chi_Net.train()
-
-    print(Chi_Net.state_dict)
-    print(get_parameter_number(Chi_Net))
 
     ## train network
     TrainNet(
@@ -171,3 +172,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# python Train_Original.py --data_directory /Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data

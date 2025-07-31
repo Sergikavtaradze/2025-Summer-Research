@@ -6,7 +6,7 @@
 #$ -l gpu_type=a6000|P100|V100
  
 # Set the job name, output file paths
-#$ -N Train_Jul28_Original_Brain_bs32_ep100_lr4e-4
+#$ -N Train_Jul29_Original_Brain_bs32_ep100_lr4e-4_ps48
 #$ -o /cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/python/job_info_mob
 #$ -e /cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/python/job_info_mob
 #$ -wd /home/mobislam
@@ -65,7 +65,7 @@ export CUDA_LAUNCH_BLOCKING=1
 # Navigate to the directory containing the scripts
 cd /cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/python/training
  
-python3 Train_Original.py -bs 32 -ep 100 -lr 4e-4 -ps (32, 32, 32) \
---data_directory "/cluster/project7/SAMed/xQSM/QSM_data" \
+python3 Train_Original.py -bs 32 -ep 100 -lr 4e-4 -ps 48 \
+--data_directory "/cluster/project7/SAMed/xQSM/2025-Summer-Research/QSM_data" \
 --snapshot_path "/cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/python/training/ckpt/" \
---ckpt_folder "Jul28_bs32_ep100_lr4e-4_xQSM_Original"
+--ckpt_folder "Jul29_bs32_ep100_lr4e-4_ps48_xQSM_Original"
