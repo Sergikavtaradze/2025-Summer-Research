@@ -308,8 +308,9 @@ if __name__ == '__main__':
     # Architecture parameters
     parser.add_argument("-ed", "--encoding_depth", default=2, type=int)
     parser.add_argument("-ic", "--ini_chNo", default=64, type=int)
+    parser.add_argument("-se", "--squeeze_exc", action="store_true", help="Default is False (i.e. do not use squeeze and excitation blocks)")
     args = parser.parse_args()
-
+    
     # Path parameters
     data_directory = None#args.data_directory
     pretrained_path = None#args.pretrained_path
@@ -352,8 +353,10 @@ if __name__ == '__main__':
         ini_chNo=ini_chNo,
         LR=learning_rate,
         batch_size=batch_size, 
+        patch_size=patch_size,
         epochs=epochs,
         useGPU=use_gpu,
         snapshot_path=snapshot_path,
-        ckpt_folder=ckpt_folder
+        ckpt_folder=ckpt_folder,
+        use_se=use_se
     ) 

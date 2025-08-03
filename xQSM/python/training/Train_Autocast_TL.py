@@ -291,11 +291,13 @@ if __name__ == '__main__':
     parser.add_argument("-lr", "--learning_rate", default=4e-4, type=float)
     parser.add_argument("-bs", "--batch_size", default=32, type=int)
     parser.add_argument("-ep", "--epochs", default=100, type=int)
+    parser.add_argument("-ps", "--patch_size", default=(32, 32, 32), type=int)
     parser.add_argument("--use_gpu", action="store_false", help="Default is True, Use GPU for training,")
     
     # Architecture parameters
     parser.add_argument("-ed", "--encoding_depth", default=2, type=int)
     parser.add_argument("-ic", "--ini_chNo", default=64, type=int)
+    parser.add_argument("-se", "--squeeze_exc", action="store_true", help="Default is False (i.e. do not use squeeze and excitation blocks)")
     args = parser.parse_args()
 
     # Path parameters
@@ -306,6 +308,7 @@ if __name__ == '__main__':
     
     # Training parameters
     batch_size = args.batch_size
+    patch_size = args.patch_size
     epochs = args.epochs
     learning_rate = args.learning_rate
     use_gpu = args.use_gpu
@@ -313,6 +316,7 @@ if __name__ == '__main__':
     # Architecture parameters
     encoding_depth = args.encoding_depth
     ini_chNo = args.ini_chNo
+    use_se = args.squeeze_exc
 
     if encoding_depth != 2:
         warnings.warn("Encoding depth is not 2. Frozen encoding layers will have random initialization and no learning rate.")
@@ -340,8 +344,10 @@ if __name__ == '__main__':
         ini_chNo=ini_chNo,
         LR=learning_rate,
         batch_size=batch_size, 
+        patch_size=patch_size,
         Epoches=epochs,
         useGPU=use_gpu,
         snapshot_path=snapshot_path,
-        ckpt_folder=ckpt_folder
+        ckpt_folder=ckpt_folder,
+        use_se=use_se
     ) 

@@ -288,6 +288,7 @@ if __name__ == '__main__':
     
     # Training parameters
     batch_size = args.batch_size
+    patch_size = args.patch_size
     epochs = args.epochs
     learning_rate = args.learning_rate
     use_gpu = args.use_gpu
@@ -295,6 +296,7 @@ if __name__ == '__main__':
     # Architecture parameters
     encoding_depth = args.encoding_depth
     ini_chNo = args.ini_chNo
+    use_se = args.squeeze_exc
 
     if encoding_depth != 2:
         warnings.warn("Encoding depth is not 2. Frozen encoding layers will have random initialization and no learning rate.")
@@ -311,8 +313,11 @@ if __name__ == '__main__':
     print(f"Pretrained Weights: {pretrained_path}")
     print(f"Learning Rate: {learning_rate}")
     print(f"Batch Size: {batch_size}")
+    print(f"Patch Size: {patch_size}")
     print(f"epochs: {epochs}")
     print(f"Use GPU: {use_gpu}")
+    print(f"")
+    print(f"Use Squeeze and Excitation: {use_se}")
     
     ## Start transfer learning training
     TrainTransferLearning(
@@ -323,8 +328,10 @@ if __name__ == '__main__':
         LR=learning_rate,
         batch_size=batch_size, 
         epochs=epochs,
+        patch_size=patch_size,
         useGPU=use_gpu,
         snapshot_path=snapshot_path,
-        ckpt_folder=ckpt_folder
+        ckpt_folder=ckpt_folder,
+        use_se=use_se
 
     ) 
