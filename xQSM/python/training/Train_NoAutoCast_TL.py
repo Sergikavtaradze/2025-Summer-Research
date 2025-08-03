@@ -310,7 +310,7 @@ if __name__ == '__main__':
     parser.add_argument("-ic", "--ini_chNo", default=64, type=int)
     parser.add_argument("-se", "--squeeze_exc", action="store_true", help="Default is False (i.e. do not use squeeze and excitation blocks)")
     args = parser.parse_args()
-    
+
     # Path parameters
     data_directory = None#args.data_directory
     pretrained_path = None#args.pretrained_path
@@ -342,8 +342,10 @@ if __name__ == '__main__':
     print(f"Pretrained Weights: {pretrained_path}")
     print(f"Learning Rate: {learning_rate}")
     print(f"Batch Size: {batch_size}")
+    print(f"Patch Size: {patch_size}")
     print(f"epochs: {epochs}")
     print(f"Use GPU: {use_gpu}")
+    print(f"Use Squeeze and Excitation: {use_se}")
     
     ## Start transfer learning training
     TrainTransferLearning(

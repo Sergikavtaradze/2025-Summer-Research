@@ -334,8 +334,10 @@ if __name__ == '__main__':
     print(f"Learning Rate: {learning_rate}")
     print(f"Batch Size: {batch_size}")
     print(f"epochs: {epochs}")
+    print(f"Patch Size: {patch_size}")
     print(f"Use GPU: {use_gpu}")
-    
+    print(f"Use Squeeze and Excitation: {use_se}")
+        
     ## Start transfer learning training
     TrainTransferLearning(
         data_directory=data_directory,

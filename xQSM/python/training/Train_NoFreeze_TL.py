@@ -316,7 +316,6 @@ if __name__ == '__main__':
     print(f"Patch Size: {patch_size}")
     print(f"epochs: {epochs}")
     print(f"Use GPU: {use_gpu}")
-    print(f"")
     print(f"Use Squeeze and Excitation: {use_se}")
     
     ## Start transfer learning training
