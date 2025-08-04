@@ -68,5 +68,12 @@ cd /cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/python/training
 # -se should make squeeze and excitation true
 python3 Train_NoFreeze_TL.py -bs 32 -ep 100 -lr 4e-4 -ps 48 \
 --data_directory "/cluster/project7/SAMed/xQSM/2025-Summer-Research/QSM_data" \
+--pretrained_path "/cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/Pretrained_Checkpoints/xQSM_invivo.pth" \
 --snapshot_path "/cluster/project7/SAMed/xQSM/2025-Summer-Research/xQSM/python/training/ckpt/" \
 --ckpt_folder "Jul31_bs32_ep100_lr4e-4_ps48_xQSM_Original"
+
+# python Train_NoFreeze_TL.py -bs 32 -ep 100 -lr 4e-4 -ps 48 -se \
+# --data_directory "/Users/sirbucks/Documents/xQSM/2025-Summer-Research/QSM_data" \
+# --pretrained_path "/Users/sirbucks/Documents/xQSM/2025-Summer-Research/xQSM/Pretrained_Checkpoints/xQSM_invivo.pth" \
+# --snapshot_path "/Users/sirbucks/Documents/xQSM/2025-Summer-Research/xQSM/ckpt" \
+# --ckpt_folder "Jul4_bs32_ep100_lr4e-4_ps48_xQSM_SE"

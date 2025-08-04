@@ -199,7 +199,8 @@ class OctConv(nn.Module):
             y_h2 = self.BN_LH(y_h2)
             ## BN and ReLU()
             y_h = y_h1 + y_h2
-            y_h = self.se_h(y_h)
+            if self.use_se:
+                y_h = self.se_h(y_h)
             y_h = self.ReLU_H(y_h)
             # final Output, Convolution without relu,
             y_h = self.FinalConv(y_h)

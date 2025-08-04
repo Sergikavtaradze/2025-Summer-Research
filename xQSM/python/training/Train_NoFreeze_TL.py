@@ -202,6 +202,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
         num_train_batches = 0
 
         for i, (inputs, targets, _) in enumerate(train_loader):
+            print(f"Training batch {i+1} of {len(train_loader)}")
             # Move to device
             inputs = inputs.to(device)
             targets = targets.to(device)
