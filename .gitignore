@@ -13,7 +13,7 @@ QSM_data
 xQSM/ckpt/
 xQSM/python/eval/*Inference_Results/
 xQSM/python/eval/run_demo.ipynb
-xQSM/python/eval/
+xQSM/python/eval/inference_results/
 
 # venv (not needed on github)
 QSM/
