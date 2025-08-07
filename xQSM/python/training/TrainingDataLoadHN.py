@@ -24,7 +24,7 @@ class QSMDataSet(data.Dataset):
     # We have 56 Volumes for the 8 subjects
     # We use 56*20 patches per epoch (1120), could use less
     def __init__(self, root = './', split_type='train', transform=None, include_noise=True, patch_size=(32, 32, 32), 
-                 stride=(24, 36, 20), num_random_patches_per_vol=42, brain_only=False):
+                 stride=(24, 36, 20), num_random_patches_per_vol=42, brain_only=False, affine=None):
         super(QSMDataSet, self).__init__()
         self.root = root
         self.split_type = split_type
@@ -34,7 +34,7 @@ class QSMDataSet(data.Dataset):
         self.stride = stride
         self.num_random_patches_per_vol = num_random_patches_per_vol
         self.brain_only = brain_only
-
+        self.affine = affine
         # Instead of using 1 volume per subject/repetition
         # We use way more patches as we are not using full volumes per epoch
         # This will be used to make the epoch size consistent
@@ -243,6 +243,10 @@ class QSMDataSet(data.Dataset):
         # I have plenty of time but not plenty of RAM
         input_nii = nib.load(self.files[vol_idx]["input"])
         target_nii = nib.load(self.files[vol_idx]["target"])
+
+        if self.affine is True:
+            input_affine = input_nii.affine
+            target_affine = target_nii.affine
         
         # Get data arrays
         input_data = input_nii.get_fdata()  # get_fdata() over get_data()
@@ -279,7 +283,11 @@ class QSMDataSet(data.Dataset):
         input_tensor = torch.unsqueeze(input_tensor, 0)
         target_tensor = torch.unsqueeze(target_tensor, 0)
         
-        return input_tensor, target_tensor, name
+
+        if self.affine is True and self.split_type == 'val' or self.split_type == 'test':
+            return input_tensor, target_tensor, name, input_affine, target_affine
+        else:
+            return input_tensor, target_tensor, name
 
     def get_file_info(self, index):
         """Get file information for a specific index"""
