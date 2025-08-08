@@ -140,7 +140,7 @@ def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2
     val_loader = data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, drop_last=False)
 
     # Create model
-    Chi_Net = xQSM(EncodingDepth=encoding_depth, ini_chNo=ini_chNo)
+    Chi_Net = xQSM(EncodingDepth=encoding_depth, ini_chNo=ini_chNo, use_se=use_se)
     
     # Load pretrained weights if available
     Chi_Net = load_pretrained_weights(Chi_Net, pretrained_path)
