@@ -29,12 +29,12 @@ class SELayer3D(nn.Module):
         return x * y
 
 class OctEncodingBlocks(nn.Module):
-    def __init__(self, num_in, num_out, alphax=0.5, alphay=0.5):
+    def __init__(self, num_in, num_out, alphax=0.5, alphay=0.5, use_se=False):
         super(OctEncodingBlocks, self).__init__()
-        self.EncodeConv1 = OctConv(num_in, num_out, alphax, alphay)
+        self.EncodeConv1 = OctConv(num_in, num_out, alphax, alphay, use_se=use_se)
         if alphax == 1:
             alphax = 0.5
-        self.EncodeConv2 = OctConv(num_out, num_out, alphax, alphay)
+        self.EncodeConv2 = OctConv(num_out, num_out, alphax, alphay,use_se=use_se)
 
     def forward(self, x_h, x_l):
         y_h, y_l = self.EncodeConv1(x_h, x_l)
@@ -43,10 +43,10 @@ class OctEncodingBlocks(nn.Module):
 
 
 class OctMidBlocks(nn.Module):
-    def __init__(self,  num_ch, alphax=0.5, alphay=0.5):
+    def __init__(self,  num_ch, alphax=0.5, alphay=0.5, use_se = False):
         super(OctMidBlocks, self).__init__()
-        self.MidConv1 = OctConv(num_ch, 2 * num_ch, alphax, alphay)
-        self.MidConv2 = OctConv(2 * num_ch, num_ch, alphax, alphay)
+        self.MidConv1 = OctConv(num_ch, 2 * num_ch, alphax, alphay, use_se=use_se)
+        self.MidConv2 = OctConv(2 * num_ch, num_ch, alphax, alphay, use_se=use_se)
 
     def forward(self, x_h, x_l):
         y_h, y_l = self.MidConv1(x_h, x_l)
@@ -55,14 +55,14 @@ class OctMidBlocks(nn.Module):
 
 
 class OctDecodingBlocks(nn.Module):
-    def __init__(self,  num_in, num_out, alphax=0.5, alphay=0.5, bilinear=False):
+    def __init__(self,  num_in, num_out, alphax=0.5, alphay=0.5, bilinear=False, use_se = False):
         super(OctDecodingBlocks, self).__init__()
         if bilinear:
             self.up = OctUp(num_in, alphax=0.5,  bilinear=True)
         else:
             self.up = OctUp(num_in, alphax=0.5,  bilinear=False)
-        self.DecodeConv1 = OctConv(2 * num_in, num_in, alphax, alphay)
-        self.DecodeConv2 = OctConv(num_in, num_out, alphax, alphay)
+        self.DecodeConv1 = OctConv(2 * num_in, num_in, alphax, alphay, use_se=use_se)
+        self.DecodeConv2 = OctConv(num_in, num_out, alphax, alphay, use_se=use_se)
 
     def forward(self, x_h1, x_l1, x_h2, x_l2):
         x_h1, x_l1 = self.up(x_h1, x_l1)
@@ -180,14 +180,14 @@ class OctConv(nn.Module):
         if self.alphax == 1:
             y_h = self.convHH(x_h)
             y_h = self.BN_HH(y_h)
-            if self.use_se:
-                y_h = self.se_hh(y_h)
+            #if self.use_se:
+            #    y_h = self.se_HH(y_h)
             y_l = F.avg_pool3d(x_h, 2)
             y_l = self.convHL(y_l)
             y_l = self.BN_HL(y_l)
             ## BN and ReLU()
-            if self.use_se:
-                y_l = self.se_hl(y_l)
+            #if self.use_se:
+            #    y_l = self.se_HL(y_l)
             y_h = self.ReLU_H(y_h)
             y_l = self.ReLU_L(y_l)
             return y_h, y_l
@@ -199,7 +199,8 @@ class OctConv(nn.Module):
             y_h2 = self.BN_LH(y_h2)
             ## BN and ReLU()
             y_h = y_h1 + y_h2
-            y_h = self.se_h(y_h)
+            if self.use_se:
+                y_h = self.se_h(y_h)
             y_h = self.ReLU_H(y_h)
             # final Output, Convolution without relu,
             y_h = self.FinalConv(y_h)
