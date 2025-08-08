@@ -47,7 +47,7 @@ class QSMDataSet(data.Dataset):
         # Find all available data files
         self.files = []
         self.vol_shapes = []
-        self._scan_data_directory()
+        self.scan_data_directory()
 
         self.fixed_patches = []
         self.random_patch_meta = []
@@ -103,14 +103,14 @@ class QSMDataSet(data.Dataset):
             'test': cls.brain_test_subjects if cls.brain_test_subjects else []
         }
 
-    def _scan_data_directory(self):
+    def scan_data_directory(self):
         """Scan the data directory for current split subjects only"""
         current_subjects = self.current_subjects
         
         if not current_subjects:
             return
-        
-        if self.brain_only:
+        print(f"These are the current subject {current_subjects}")
+        if not self.brain_only:
             for subject in current_subjects:
                 # Create pattern for this specific subject
                 input_pattern = os.path.join(self.root, f"{subject}/ses-*/qsm/*_unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield.nii.gz")
@@ -144,7 +144,7 @@ class QSMDataSet(data.Dataset):
             for subject in current_subjects:
                 # Create pattern for this specific subject
                 input_pattern = os.path.join(self.root, f"{subject}/ses-*/qsm/*_unwrapped-SEGUE_mask-nfe_bfr-PDF_localfield_masked_cropped.nii.gz")
-                input_files = glob.glob(input_pattern)
+                input_files = glob.glob(input_pattern)       
                 for input_file in input_files:
                     # Extract subject and session from filename
                     filename = os.path.basename(input_file)
@@ -202,49 +202,57 @@ class QSMDataSet(data.Dataset):
         #print(len(self.files))
         #print(self.num_patches)
         #return self.num_patches # Consistent epoch size
-        return len(self.fixed_patches) + len(self.random_patch_meta)
+        if self.affine:
+            return len(self.files)
+        else:
+            return len(self.fixed_patches) + len(self.random_patch_meta)
     
     def __getitem__(self, index):
         #print(f'This is the length {self.__len__()}')
         #print(f'this is the index: {index}')
         
-        if index < len(self.fixed_patches):
-            # Fixed patch case
-            #print(f'this is the patch info: {self.fixed_patches[index]}')
-            patch_info = self.fixed_patches[index]
-            vol_idx = patch_info["vol_idx"]
-            #print(f'this is the fixed volume index: {vol_idx}')
-            i, j, k = patch_info["coords"]
-            pd, ph, pw = self.patch_size # Use for patch extraction later
+        # When doing inference we are not loading patches
+        # We need to index directly into the class parameter self.files
+        if not self.affine: 
+            if index < len(self.fixed_patches):
+                # Fixed patch case
+                #print(f'this is the patch info: {self.fixed_patches[index]}')
+                patch_info = self.fixed_patches[index]
+                vol_idx = patch_info["vol_idx"]
+                #print(f'this is the fixed volume index: {vol_idx}')
+                i, j, k = patch_info["coords"]
+                pd, ph, pw = self.patch_size # Use for patch extraction later
+            else:
+                # Random patch case
+                random_idx = index - len(self.fixed_patches)
+                patch_info = self.random_patch_meta[random_idx]
+                #print(f'this is the random patch info: {patch_info}')
+                vol_idx = patch_info["vol_idx"]
+                #print(f'this is the random volume index: {vol_idx}')
+                # Generate random coordinates dynamically
+                d, h, w = self.vol_shapes[vol_idx]
+                pd, ph, pw = self.patch_size
+                i = random.randint(0, d - pd)
+                j = random.randint(0, h - ph)
+                k = random.randint(0, w - pw)
+            
+            name = self.files[vol_idx]["name"]
+            
+            # Load NIfTI files (handles .gz compression automatically)
+            # Could implement caching here? Not sure if it's worth it
+            # I have plenty of time but not plenty of RAM
+            input_nii = nib.load(self.files[vol_idx]["input"])
+            target_nii = nib.load(self.files[vol_idx]["target"])
         else:
-            # Random patch case
-            random_idx = index - len(self.fixed_patches)
-            patch_info = self.random_patch_meta[random_idx]
-            #print(f'this is the random patch info: {patch_info}')
-            vol_idx = patch_info["vol_idx"]
-            #print(f'this is the random volume index: {vol_idx}')
-            # Generate random coordinates dynamically
-            d, h, w = self.vol_shapes[vol_idx]
-            pd, ph, pw = self.patch_size
-            i = random.randint(0, d - pd)
-            j = random.randint(0, h - ph)
-            k = random.randint(0, w - pw)
-        # datafiles = self.files[index]
-        # Load the data
-        # print(f'this is the index: {index}')
-        # print(f'this is the length of the files: {len(self.files)}')
-        # vol_idx = index % len(self.files)
-        # print(f'this is the volume index: {vol_idx}')
-        name = self.files[vol_idx]["name"]
-        #print(f'this is the name: {name}')
-        
-        # Load NIfTI files (handles .gz compression automatically)
-        # Could implement caching here? Not sure if it's worth it
-        # I have plenty of time but not plenty of RAM
-        input_nii = nib.load(self.files[vol_idx]["input"])
-        target_nii = nib.load(self.files[vol_idx]["target"])
+            name = self.files[index]["name"]
+            
+            # Load NIfTI files (handles .gz compression automatically)
+            # Could implement caching here? Not sure if it's worth it
+            # I have plenty of time but not plenty of RAM
+            input_nii = nib.load(self.files[index]["input"])
+            target_nii = nib.load(self.files[index]["target"])
 
-        if self.affine is True:
+            # Get affine matrices
             input_affine = input_nii.affine
             target_affine = target_nii.affine
         
@@ -259,34 +267,38 @@ class QSMDataSet(data.Dataset):
         input_tensor = torch.from_numpy(input_data).float()
         target_tensor = torch.from_numpy(target_data).float()
         
-        ######################
-        # Patchwise training #
-        ######################        
-
-        # If caching volumes have to use .clone(), since we don't want the cached volumes to be modified with the subsequent noise addition
-        input_tensor = input_tensor[i:i+pd, j:j+ph, k:k+pw] # .clone()
-        target_tensor = target_tensor[i:i+pd, j:j+ph, k:k+pw] # .clone()
-
-        #print(f'this is the input tensor: {input_tensor.shape}')
-        #print(f'this is the target tensor: {target_tensor.shape}')
-
-        # Add noise augmentation (optional)
-        if self.include_noise:
-            tmp = torch.rand(1)
-            if tmp > self.Prob:
-                tmp_mask = input_tensor != 0
-                tmp_idx = torch.randint(5, (1,1))
-                tmp_SNR = self.SNRs[tmp_idx]
-                input_tensor = AddNoise(input_tensor, tmp_SNR)
-        
-        # Add channel dimension (batch_size will be added by DataLoader)
-        input_tensor = torch.unsqueeze(input_tensor, 0)
-        target_tensor = torch.unsqueeze(target_tensor, 0)
-        
-
+        # Have to place this before the tensors are divided into patches
         if self.affine is True and self.split_type == 'val' or self.split_type == 'test':
-            return input_tensor, target_tensor, name, input_affine, target_affine
+            # print(f"input_tensor shape: {input_tensor.shape}")
+            # print(f"target_tensor shape: {target_tensor.shape}")
+            # print(f"name: {name}")
+            # print(f"input_affine shape: {input_affine.shape}")
+            # print(f"target_affine shape: {target_affine.shape}")
+            return input_tensor.unsqueeze(0), target_tensor.unsqueeze(0), name, input_affine, target_affine
         else:
+            ######################
+            # Patchwise training #
+            ######################        
+
+            # If caching volumes have to use .clone(), since we don't want the cached volumes to be modified with the subsequent noise addition
+            input_tensor = input_tensor[i:i+pd, j:j+ph, k:k+pw] # .clone()
+            target_tensor = target_tensor[i:i+pd, j:j+ph, k:k+pw] # .clone()
+
+            #print(f'this is the input tensor: {input_tensor.shape}')
+            #print(f'this is the target tensor: {target_tensor.shape}')
+
+            # Add noise augmentation (optional)
+            if self.include_noise:
+                tmp = torch.rand(1)
+                if tmp > self.Prob:
+                    tmp_mask = input_tensor != 0
+                    tmp_idx = torch.randint(5, (1,1))
+                    tmp_SNR = self.SNRs[tmp_idx]
+                    input_tensor = AddNoise(input_tensor, tmp_SNR)
+            
+            # Add channel dimension (batch_size will be added by DataLoader)
+            input_tensor = torch.unsqueeze(input_tensor, 0)
+            target_tensor = torch.unsqueeze(target_tensor, 0)
             return input_tensor, target_tensor, name
 
     def get_file_info(self, index):
