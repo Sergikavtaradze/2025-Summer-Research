@@ -107,7 +107,7 @@ def SaveNet(model, epoch, snapshot_path='./transfer_learning_checkpoints', ckpt_
 def TrainTransferLearning(data_directory, pretrained_path=None, encoding_depth=2, ini_chNo=64, 
                           LR=0.001, batch_size=32, epochs=50, patch_size=(32, 32, 32), useGPU=True, 
                           snapshot_path='./transfer_learning_checkpoints', ckpt_folder=None,
-                          use_se = None):
+                          use_se = False):
     """
     Train xQSM model with transfer learning approach
     
