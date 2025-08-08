@@ -180,14 +180,14 @@ class OctConv(nn.Module):
         if self.alphax == 1:
             y_h = self.convHH(x_h)
             y_h = self.BN_HH(y_h)
-            #if self.use_se:
-            #    y_h = self.se_HH(y_h)
+            if self.use_se:
+                y_h = self.se_HH(y_h)
             y_l = F.avg_pool3d(x_h, 2)
             y_l = self.convHL(y_l)
             y_l = self.BN_HL(y_l)
             ## BN and ReLU()
-            #if self.use_se:
-            #    y_l = self.se_HL(y_l)
+            if self.use_se:
+                y_l = self.se_HL(y_l)
             y_h = self.ReLU_H(y_h)
             y_l = self.ReLU_L(y_l)
             return y_h, y_l
